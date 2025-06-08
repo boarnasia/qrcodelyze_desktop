@@ -16,9 +16,15 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2'  # 最新安定版に合わせて
+          flutter-version: '3.22.1'
+          channel: stable
 
-      - name: Flutter pub get
+      - name: Check Flutter & Dart version
+        run: |
+          flutter --version
+          dart --version
+
+      - name: Get dependencies
         run: flutter pub get
 
       - name: Run tests
