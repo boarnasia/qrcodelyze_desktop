@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('文字列のテスト', () {
-    final name = 'QRcodelyze';
+    const name = 'QRcodelyze';
     expect(name.contains('code'), isTrue);
   });
 }
