@@ -1,0 +1,9 @@
+{
+  "language": "dart",
+  "style": {
+    "use_const_constructors": true,
+    "prefer_stateless_widgets": true
+  },
+  "project_type": "flutter_desktop_app",
+  "description": "このプロジェクトではFlutterでWindows用のQRコード生成アプリを開発しており、Dartのクリーンコード原則に従います。"
+}
