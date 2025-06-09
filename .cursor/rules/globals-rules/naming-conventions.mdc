@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- Widget: PascalCase
+- ファイル名: snake_case
+- private変数: _camelCase
+- 定数: camelCaseまたはkPascalCase（Flutter準拠）
+

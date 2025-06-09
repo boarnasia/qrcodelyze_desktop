@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+
+description: プロジェクト全体に適用されるFlutterデスクトップアプリ開発の基本指針
+ruleType: Always
+----------------
+
+## 📘 開発指針とAI支援方針（旧 instructions.mdc 統合）
+
+このプロジェクトは、Flutterを使用したWindowsデスクトップ向けQRコード生成・スキャンアプリです。
+以下の原則に基づき、CursorのAI補完およびコード生成を支援します：
+
+* **言語とフレームワーク**：Dart + Flutter（Desktop）
+* **設計思想**：
+
+  * 単一責務（SRP）を基本とするWidget構成
+  * クリーンアーキテクチャの実践（UIとロジックを分離）
+  * 状態の明確な管理と即時UI反映
+* **実装スタイル**：
+
+  * `const` コンストラクタを活用（パフォーマンス最適化）
+  * 再利用可能な `StatelessWidget` を推奨
+  * 遷移のある画面は `StatefulWidget` で管理
+
+---
+
+このルールはプロジェクト全体に常時適用され、CursorのAI支援に一貫した設計方針を提供します。
