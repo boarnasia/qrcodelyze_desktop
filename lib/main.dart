@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
 import 'constants/app_constants.dart';
 import 'screens/generate_screen.dart';
 import 'screens/scan_screen.dart';
@@ -6,7 +7,24 @@ import 'screens/scan_screen.dart';
 // 1. ScreenModeの追加
 enum ScreenMode { generate, scan }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  const Size windowSize = Size(282, 547);
+
+  WindowOptions options = const WindowOptions(
+    size: windowSize,
+    minimumSize: windowSize,
+    center: true,
+    title: AppConstants.appName,
+  );
+
+  await windowManager.waitUntilReadyToShow(options, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
   runApp(const MyApp());
 }
 
