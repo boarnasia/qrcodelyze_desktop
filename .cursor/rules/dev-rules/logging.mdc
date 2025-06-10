@@ -1,0 +1,27 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# RuleType: Always
+# description: Flutterアプリ内のロギング方針と実装ルール
+# globs:
+#   - lib/log/logger.dart
+#   - lib/**/*.dart
+
+---
+
+## 🎯 ロギングの目的
+
+このプロジェクトでは、開発中の状態確認・デバッグ効率向上のために Dart 標準の `logging` パッケージを使用する。
+
+すべてのログ出力は `appLogger` を通じて行い、ログレベル・タイムスタンプ・モジュール名を含むフォーマットでコンソールに出力する。
+
+---
+
+## ✅ 使用パッケージ
+
+```yaml
+dependencies:
+  logging: ^1.2.0
+
