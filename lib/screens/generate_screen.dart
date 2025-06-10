@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../constants/app_constants.dart';
 
 class GenerateScreen extends StatefulWidget {
   const GenerateScreen({super.key});
@@ -31,7 +32,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
             Expanded(
               child: Center(
                 child: QrImageView(
-                  data: qrData.isEmpty ? 'QRcodelyze' : qrData,
+                  data: qrData.isEmpty ? AppConstants.defaultQrData : qrData,
                   version: QrVersions.auto,
                   size: qrSize,
                 ),

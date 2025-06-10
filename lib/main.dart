@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
-  const Size windowSize = Size(282, 547);
+  const Size windowSize = AppConstants.windowSize;
 
   WindowOptions options = const WindowOptions(
     size: windowSize,
@@ -62,15 +62,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -78,7 +69,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // 2. モード状態を追加
+  // モード状態を追加
   ScreenMode _mode = ScreenMode.generate;
 
   void _switchMode(ScreenMode mode) {
