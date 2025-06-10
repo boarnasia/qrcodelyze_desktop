@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../constants/app_constants.dart';
-import '../log/logger.dart';
+import '../log/log_wrapper.dart';
 
 class GenerateScreen extends StatefulWidget {
   const GenerateScreen({super.key});
@@ -66,7 +66,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        appLogger.fine('Clearボタンが押されました');
+                        logFine('Clearボタンが押されました');
                         setState(() {
                           qrData = '';
                           _textController.clear();

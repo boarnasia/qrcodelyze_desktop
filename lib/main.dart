@@ -4,13 +4,14 @@ import 'constants/app_constants.dart';
 import 'screens/generate_screen.dart';
 import 'screens/scan_screen.dart';
 import 'log/logger.dart';
+import 'log/log_wrapper.dart';
 
 // 1. ScreenModeの追加
 enum ScreenMode { generate, scan }
 
 void main(List<String> args) async {
   initLogging(args);
-  appLogger.info('アプリケーションを起動します');
+  logInfo('アプリケーションを起動します');
   
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
@@ -27,7 +28,7 @@ void main(List<String> args) async {
   await windowManager.waitUntilReadyToShow(options, () async {
     await windowManager.show();
     await windowManager.focus();
-    appLogger.info('ウィンドウを表示しました: ${windowSize.width}x${windowSize.height}');
+    logInfo('ウィンドウを表示しました: ${windowSize.width}x${windowSize.height}');
   });
 
   runApp(const MyApp());
@@ -81,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _mode = mode;
     });
-    appLogger.info('画面モードを切り替えました: ${mode.name}');
+    logInfo('画面モードを切り替えました: ${mode.name}');
   }
 
   @override
@@ -108,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: _mode == ScreenMode.generate
                     ? null
                     : () {
-                        appLogger.fine('Generateボタンが押されました');
+                        logFine('Generateボタンが押されました');
                         _switchMode(ScreenMode.generate);
                       },
                 child: const Text('Generate'),
@@ -118,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: _mode == ScreenMode.scan
                     ? null
                     : () {
-                        appLogger.fine('Scanボタンが押されました');
+                        logFine('Scanボタンが押されました');
                         _switchMode(ScreenMode.scan);
                       },
                 child: const Text('Scan'),
