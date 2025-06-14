@@ -31,7 +31,7 @@ class _ScanScreenState extends State<ScanScreen> {
       focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: (event) {
-        if (event is KeyDownEvent &&
+        if (event is KeyUpEvent &&
             event.logicalKey == LogicalKeyboardKey.keyV &&
             (HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.controlLeft) ||
              HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.controlRight))) {
