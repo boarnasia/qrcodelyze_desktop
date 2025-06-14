@@ -43,36 +43,47 @@ class _GenerateScreenState extends State<GenerateScreen> {
               child: Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.all(0),
-                child: Column(
+                child: Stack(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _textController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter text',
-                        ),
-                        enabled: true,
-                        maxLines: null,
-                        expands: true,
-                        textAlignVertical: TextAlignVertical.top,
-                        onChanged: (value) {
-                          setState(() {
-                            qrData = value;
-                          });
+                    Positioned.fill(
+                      child: RawKeyboardListener(
+                        focusNode: FocusNode(),
+                        onKey: (event) {
+                          if (event.runtimeType.toString() == 'RawKeyUpEvent' && event.logicalKey.keyLabel == 'Escape') {
+                            setState(() {
+                              qrData = '';
+                              _textController.clear();
+                            });
+                          }
                         },
+                        child: TextField(
+                          controller: _textController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter text',
+                          ),
+                          enabled: true,
+                          maxLines: null,
+                          expands: true,
+                          textAlignVertical: TextAlignVertical.top,
+                          onChanged: (value) {
+                            setState(() {
+                              qrData = value;
+                            });
+                          },
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        logFine('Clearボタンが押されました');
-                        setState(() {
-                          qrData = '';
-                          _textController.clear();
-                        });
-                      },
-                      child: const Text('Clear'),
+                    Positioned(
+                      right: 12,
+                      bottom: 12,
+                      child: Text(
+                        'ESC でクリア',
+                        style: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                   ],
                 ),
