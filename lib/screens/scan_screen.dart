@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
-enum ScanMode { photos, camera }
+import 'package:flutter/services.dart';
+import '../models/image_source.dart';
+import '../models/file_image_source.dart';
+import '../models/clipboard_image_source.dart';
+import '../log/log_wrapper.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -10,69 +13,122 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
-  ScanMode _mode = ScanMode.photos;
+  ImageSource? _currentSource;
+  Uint8List? _previewData;
+  String? _scanResult;
+  String? _errorMessage;
+  final _focusNode = FocusNode();
 
-  void _toggleMode() {
-    setState(() {
-      _mode = _mode == ScanMode.photos ? ScanMode.camera : ScanMode.photos;
-    });
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
+    return RawKeyboardListener(
+      focusNode: _focusNode,
+      autofocus: true,
+      onKey: (event) {
+        if (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyV) {
+          _handlePaste();
+        }
+      },
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 上部: カメラプレビュー or 画像（ダミー）
+            // プレビュー表示エリア
             Expanded(
-              child: Container(
-                alignment: Alignment.center,
-                color: Colors.red,
+              child: GestureDetector(
+                onDoubleTap: _handleFileSelect,
+                onSecondaryTap: _handlePaste,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: _previewData != null
+                      ? Image.memory(_previewData!)
+                      : const Center(
+                          child: Text('ダブルクリック: ファイルから選択\n右クリック/Ctrl+V: クリップボードから貼り付け'),
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // スキャン結果表示エリア
+            if (_scanResult != null || _errorMessage != null)
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _errorMessage != null ? Colors.red.shade50 : Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Text(
-                  _mode == ScanMode.photos ? '画像プレビュー（ダミー）' : 'カメラプレビュー（ダミー）',
-                  style: const TextStyle(color: Colors.black54),
+                  _errorMessage ?? _scanResult!,
+                  style: TextStyle(
+                    color: _errorMessage != null ? Colors.red : Colors.green,
+                  ),
                 ),
               ),
-            ),
-            // 下部: スキャン状態表示＋トグルボタン
-            Expanded(
-              child: Container(
-                color: Colors.amber,
-                padding: const EdgeInsets.all(0),
-                child: Column(
-                  children: [
-                    // スキャン状態表示を下部コンテナいっぱいに
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        alignment: Alignment.topLeft,
-                        child: const Text(
-                          'Scanning中、スキャン結果がこちらに表示されます。',
-                          style: TextStyle(color: Colors.blue, fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    // Scan from Photos/Cameraトグルボタン
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _toggleMode,
-                            child: Text(_mode == ScanMode.photos ? 'Scan from Camera' : 'Scan from Photos'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _handleFileSelect() async {
+    try {
+      setState(() {
+        _currentSource = FileImageSource();
+        _previewData = null;
+        _scanResult = null;
+        _errorMessage = null;
+      });
+      
+      final previewData = await _currentSource!.getPreviewData();
+      setState(() {
+        _previewData = previewData;
+      });
+      
+      // TODO: FFI実装後にデコード処理を追加
+      setState(() {
+        _scanResult = 'ファイルから画像を読み込みました（デコード処理は未実装）';
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      logWarning('ファイル選択エラー: $e');
+    }
+  }
+
+  Future<void> _handlePaste() async {
+    try {
+      setState(() {
+        _currentSource = ClipboardImageSource();
+        _previewData = null;
+        _scanResult = null;
+        _errorMessage = null;
+      });
+      
+      final previewData = await _currentSource!.getPreviewData();
+      setState(() {
+        _previewData = previewData;
+      });
+      
+      // TODO: FFI実装後にデコード処理を追加
+      setState(() {
+        _scanResult = 'クリップボードから画像を読み込みました（デコード処理は未実装）';
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      logWarning('クリップボード貼り付けエラー: $e');
+    }
   }
 } 

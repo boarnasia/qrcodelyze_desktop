@@ -1,0 +1,84 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+RuleType: Always
+Description: Windows向けQRコードスキャナーのFFI設計
+---
+
+## 概要
+
+Flutterデスクトップ (Windows) 版 QRコードスキャナー機能を以下の構成で実装する。
+
+* スキャン入力経路は **画像ファイル選択** と **クリップボード画像取得** の2通り。
+* QRコードデコード処理は **zxingライブラリ (C++実装)** を **FFI経由で呼び出す**。
+
+## コンポーネント構成
+
+### 1. UI層
+
+* `ScanScreen` : QRスキャン用の画面を担当
+
+  * `Paste Image (Ctrl+V) or Load from File` ボタン
+  * クリップボード監視は行わず、ユーザーアクションで明示的に取得
+  * 入力画像表示エリア (読み込んだ画像をプレビュー表示)
+  * デコード結果表示エリア
+
+### 2. 画像取得ロジック
+
+#### ファイル選択経路
+
+* `package:file_picker` を利用してユーザーが画像ファイルを選択
+* 読み込んだ画像ファイルを `Uint8List` 形式に変換
+
+#### クリップボード経路
+
+* Windows FFI (package\:win32) 経由で `OpenClipboard` などのAPIを使用
+* 画像形式は DIB形式 (Device Independent Bitmap) を想定
+* 取得後、Dart側で `Uint8List` に変換
+* `RawKeyboardListener` で `Ctrl+V` を検知してクリップボード画像取得をトリガー
+
+### 3. デコードロジック
+
+* FFI経由でローカルDLL (zxingラッパーDLL) を呼び出す
+* 画像形式は **Grayscale 8bit** または **RGB24** に統一すること
+* エラーハンドリングは適切に行う（無効画像・非QRなど）
+
+## FFI設計方針
+
+* `zxing_decoder.dll` などのラッパーDLLを別途ビルド
+* Dart FFIバインディングは `dart:ffi` を利用
+* 呼び出しシグネチャは以下の形を想定
+
+```c
+// C++側
+extern "C" __declspec(dllexport)
+int decode_qrcode(const uint8_t* image_data, int width, int height, int stride, char* output_buffer, int output_buffer_size);
+```
+
+```dart
+// Dart側
+@ffi
+int decodeQrCode(Pointer<Uint8> imageData, int width, int height, int stride, Pointer<Utf8> outputBuffer, int outputBufferSize);
+```
+
+## セキュリティ考慮
+
+* 画像入力はユーザー操作による明示的なタイミングのみ取得
+* クリップボード取得もボタン押下やCtrl+V入力時にのみ行う（バックグラウンド監視しない）
+
+## Store提出想定
+
+* MSIXパッケージ化前提
+* クリップボードAPIはWin32 API利用でも審査通過可能
+* プライバシーポリシーに「クリップボードからの画像取得可能性」を記載
+
+## Codex支援方針
+
+* UIレイヤの実装分離
+* 画像データ抽象化クラス（ImageSourceなど）で拡張性確保
+* FFIバインディングとデコーダーラッパーは分割実装する
+* 将来的にWebカメラ対応追加可能性あり（現時点は静止画のみ）
+
