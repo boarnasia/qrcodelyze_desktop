@@ -6,6 +6,7 @@ class AppConstants {
   static const double windowHeight = 547;
   static const Size windowSize = Size(windowWidth, windowHeight);
   static const String defaultQrData = 'QRcodelyze';
+  static const int logBufferSize = 1000;
   
   const AppConstants._();
 } 

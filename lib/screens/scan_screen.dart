@@ -61,22 +61,6 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
-            // スキャン結果表示エリア
-            if (_scanResult != null || _errorMessage != null)
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _errorMessage != null ? Colors.red.shade50 : Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  _errorMessage ?? _scanResult!,
-                  style: TextStyle(
-                    color: _errorMessage != null ? Colors.red : Colors.green,
-                  ),
-                ),
-              ),
           ],
         ),
       ),

@@ -3,6 +3,27 @@ import 'package:flutter/foundation.dart';
 
 final Logger appLogger = Logger('QRcodelyze');
 
+/// ログバッファ（最新logBufferSize件まで保持）
+class LogBuffer {
+  final int maxLength;
+  final List<String> _buffer = [];
+
+  LogBuffer(this.maxLength);
+
+  void add(String log) {
+    _buffer.add(log);
+    if (_buffer.length > maxLength) {
+      _buffer.removeAt(0);
+    }
+  }
+
+  List<String> get logs => List.unmodifiable(_buffer);
+
+  String get latest => _buffer.isNotEmpty ? _buffer.last : '';
+}
+
+final LogBuffer appLogBuffer = LogBuffer(1000); // AppConstants.logBufferSizeはimportできないため数値直書き
+
 /// ログレベルを文字列から解析する
 Level _parseLogLevel(String name) {
   switch (name.toUpperCase()) {
@@ -45,11 +66,6 @@ void initLogging(List<String> args) {
       : _parseLogLevel(levelArg.split('=').last);
 
   Logger.root.level = logLevel;
-  Logger.root.onRecord.listen((record) {
-    final time = record.time.toIso8601String();
-    final level = record.level.name.padRight(7);
-    print('[$level][$time] ${record.loggerName}: ${record.message}');
-  });
 
   if (isDebugMode) {
     appLogger.info('デバッグモードでログ出力を有効化しました');

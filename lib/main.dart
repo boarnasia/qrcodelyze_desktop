@@ -3,6 +3,7 @@ import 'package:window_manager/window_manager.dart';
 import 'constants/app_constants.dart';
 import 'screens/generate_screen.dart';
 import 'screens/scan_screen.dart';
+import 'screens/log_view.dart';
 import 'log/logger.dart';
 import 'log/log_wrapper.dart';
 
@@ -77,6 +78,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // モード状態を追加
   ScreenMode _mode = ScreenMode.generate;
+  bool _logExpanded = false;
 
   void _switchMode(ScreenMode mode) {
     setState(() {
@@ -100,33 +102,61 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Column(
         children: [
-          Expanded(child: screen),
-          // 3. 画面下部に切り替えボタン
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: _mode == ScreenMode.generate
-                    ? null
-                    : () {
-                        logFine('Generateボタンが押されました');
-                        _switchMode(ScreenMode.generate);
-                      },
-                child: const Text('Generate'),
+          if (!_logExpanded) ...[
+            Expanded(child: screen),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _mode == ScreenMode.generate
+                      ? null
+                      : () {
+                          logFine('Generateボタンが押されました');
+                          _switchMode(ScreenMode.generate);
+                        },
+                  child: const Text('Generate'),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _mode == ScreenMode.scan
+                      ? null
+                      : () {
+                          logFine('Scanボタンが押されました');
+                          _switchMode(ScreenMode.scan);
+                        },
+                  child: const Text('Scan'),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 8),
+          if (_logExpanded)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: LogView(
+                  expanded: true,
+                  onExpandChanged: (expanded) {
+                    setState(() {
+                      _logExpanded = expanded;
+                    });
+                  },
+                ),
               ),
-              const SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: _mode == ScreenMode.scan
-                    ? null
-                    : () {
-                        logFine('Scanボタンが押されました');
-                        _switchMode(ScreenMode.scan);
-                      },
-                child: const Text('Scan'),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: LogView(
+                expanded: false,
+                onExpandChanged: (expanded) {
+                  setState(() {
+                    _logExpanded = expanded;
+                  });
+                },
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
+            ),
+          const SizedBox(height: 8),
         ],
       ),
     );
