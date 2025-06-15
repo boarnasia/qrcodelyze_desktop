@@ -139,39 +139,32 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  Future<void> _decodeImageSource({required bool isClipboard}) async {
-    try {
-      final previewData = await _currentSource!.getPreviewData();
-      setState(() {
-        _previewData = previewData;
-      });
+  Future<void> _decodeImageSource() async {
+    final previewData = await _currentSource!.getPreviewData();
+    setState(() {
+      _previewData = previewData;
+    });
 
-      final imageData = convertToRGBX(_currentSource!.rawImage!);
-      final width = _currentSource!.rawImage!.width;
-      final height = _currentSource!.rawImage!.height;
-      final params = DecodeParams(
-        imageFormat: ImageFormat.rgbx,
-        format: Format.any,
-        width: width,
-        height: height,
-      );
-      final result = zx.readBarcode(imageData, params);
-      setState(() {
-        if (result.isValid) {
-          _codeType = result.format?.name;
-          _codeContent = result.text;
-        } else {
-          _codeType = null;
-          _codeContent = null;
-          _errorMessage = 'コードが検出できませんでした';
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-      logWarning('${isClipboard ? 'クリップボード貼り付け' : 'ファイル選択'}エラー: $e');
-    }
+    final imageData = convertToRGBX(_currentSource!.rawImage!);
+    final width = _currentSource!.rawImage!.width;
+    final height = _currentSource!.rawImage!.height;
+    final params = DecodeParams(
+      imageFormat: ImageFormat.rgbx,
+      format: Format.any,
+      width: width,
+      height: height,
+    );
+    final result = zx.readBarcode(imageData, params);
+    setState(() {
+      if (result.isValid) {
+        _codeType = result.format?.name;
+        _codeContent = result.text;
+      } else {
+        _codeType = null;
+        _codeContent = null;
+        _errorMessage = 'コードが検出できませんでした';
+      }
+    });
   }
 
   Future<void> _handleFileSelect() async {
@@ -183,7 +176,14 @@ class _ScanScreenState extends State<ScanScreen> {
       _codeType = null;
       _codeContent = null;
     });
-    await _decodeImageSource(isClipboard: false);
+    try {
+      await _decodeImageSource();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      logWarning('ファイル選択エラー: $e');
+    }
   }
 
   Future<void> _handlePaste() async {
@@ -195,6 +195,13 @@ class _ScanScreenState extends State<ScanScreen> {
       _codeType = null;
       _codeContent = null;
     });
-    await _decodeImageSource(isClipboard: true);
+    try {
+      await _decodeImageSource();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      logWarning('クリップボード貼り付けエラー: $e');
+    }
   }
 } 
