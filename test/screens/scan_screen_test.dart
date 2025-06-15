@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:qrcodelyze_desktop/screens/scan_screen.dart';
 import 'package:qrcodelyze_desktop/models/qr_data_provider.dart';
-import 'package:qrcodelyze_desktop/constants/app_constants.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
