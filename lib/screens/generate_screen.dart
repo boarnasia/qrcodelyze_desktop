@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../constants/app_constants.dart';
+import '../log/log_wrapper.dart';
 
 class GenerateScreen extends StatefulWidget {
   const GenerateScreen({super.key});
@@ -50,6 +51,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         onKey: (event) {
                           if (event.runtimeType.toString() == 'RawKeyUpEvent' && event.logicalKey.keyLabel == 'Escape') {
                             setState(() {
+                              logInfo("テキストをクリアしました。");
                               qrData = '';
                               _textController.clear();
                             });
