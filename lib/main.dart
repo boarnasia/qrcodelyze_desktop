@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:provider/provider.dart';
 import 'constants/app_constants.dart';
 import 'screens/generate_screen.dart';
 import 'screens/scan_screen.dart';
 import 'screens/log_view.dart';
 import 'log/logger.dart';
 import 'log/log_wrapper.dart';
+import 'models/qr_data_provider.dart';
 
 // 1. ScreenModeの追加
 enum ScreenMode { generate, scan }
@@ -32,7 +34,12 @@ void main(List<String> args) async {
     logInfo('ウィンドウを表示しました: ${windowSize.width}x${windowSize.height}');
   });
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => QrDataProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

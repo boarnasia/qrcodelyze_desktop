@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_constants.dart';
 import '../log/log_wrapper.dart';
+import '../models/qr_data_provider.dart';
 
 class GenerateScreen extends StatefulWidget {
   const GenerateScreen({super.key});
@@ -13,10 +15,17 @@ class GenerateScreen extends StatefulWidget {
 }
 
 class _GenerateScreenState extends State<GenerateScreen> {
-  String qrData = '';
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初期値を設定
+    final qrDataProvider = Provider.of<QrDataProvider>(context, listen: false);
+    _textController.text = qrDataProvider.qrData;
+  }
 
   @override
   void dispose() {
@@ -29,10 +38,8 @@ class _GenerateScreenState extends State<GenerateScreen> {
   void _updateQrCode(String value) {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(Duration(milliseconds: AppConstants.qrCodeUpdateDelayMs), () {
-      setState(() {
-        qrData = value;
-        logInfo("QR コードを生成・更新しました。");
-      });
+      Provider.of<QrDataProvider>(context, listen: false).updateQrData(value);
+      logInfo("QR コードを生成・更新しました。");
     });
   }
 
@@ -48,10 +55,14 @@ class _GenerateScreenState extends State<GenerateScreen> {
           children: [
             Expanded(
               child: Center(
-                child: QrImageView(
-                  data: qrData.isEmpty ? AppConstants.defaultQrData : qrData,
-                  version: QrVersions.auto,
-                  size: qrSize,
+                child: Consumer<QrDataProvider>(
+                  builder: (context, qrDataProvider, child) {
+                    return QrImageView(
+                      data: qrDataProvider.qrData.isEmpty ? AppConstants.defaultQrData : qrDataProvider.qrData,
+                      version: QrVersions.auto,
+                      size: qrSize,
+                    );
+                  },
                 ),
               ),
             ),
@@ -65,7 +76,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.escape) {
                           setState(() {
                             logInfo("テキストをクリアしました。");
-                            qrData = '';
+                            Provider.of<QrDataProvider>(context, listen: false).clearQrData();
                             _textController.clear();
                           });
                         }
@@ -80,19 +91,6 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         expands: true,
                         textAlignVertical: TextAlignVertical.top,
                         onChanged: _updateQrCode,
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 12, bottom: 12),
-                      child: Text(
-                        'ESC でクリア',
-                        style: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 13,
-                        ),
                       ),
                     ),
                   ),
