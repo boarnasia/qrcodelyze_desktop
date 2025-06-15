@@ -43,6 +43,7 @@ dependencies:
   ffi: ^2.1.0
   pasteboard: ^0.4.0
   flutter_zxing: ^2.1.0
+  desktop_drop: ^0.6.0
 
 dev_dependencies:
   flutter_test:

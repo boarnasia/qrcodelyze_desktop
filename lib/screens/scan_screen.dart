@@ -9,6 +9,7 @@ import 'package:flutter_zxing/flutter_zxing.dart';
 import 'package:flutter/services.dart' show Clipboard;
 import 'package:image_picker/image_picker.dart' as picker;
 import 'package:file_selector/file_selector.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -62,61 +63,46 @@ class _ScanScreenState extends State<ScanScreen> {
         children: [
           // 上半分: プレビュー画像
           Expanded(
-            child: DragTarget<XFile>(
-              onWillAcceptWithDetails: (file) => file != null,
-              onAcceptWithDetails: (details) async {
-                setState(() {
-                  _currentSource = FileImageSource(file: details.data);
-                  _previewData = null;
-                  _errorMessage = null;
-                  _codeType = null;
-                  _codeContent = null;
-                });
-                try {
-                  await _decodeImageSource();
-                } catch (e) {
+            child: DropTarget(
+              onDragDone: (details) async {
+                if (details.files.isNotEmpty) {
                   setState(() {
-                    _errorMessage = e.toString();
+                    _currentSource = FileImageSource(file: details.files.first);
+                    _previewData = null;
+                    _errorMessage = null;
+                    _codeType = null;
+                    _codeContent = null;
                   });
-                  logWarning('ファイル選択エラー: $e');
+                  try {
+                    await _decodeImageSource();
+                  } catch (e) {
+                    setState(() {
+                      _errorMessage = e.toString();
+                    });
+                    logWarning('ファイル選択エラー: $e');
+                  }
                 }
               },
-              builder: (context, candidateFiles, rejectedFiles) {
-                return GestureDetector(
-                  onDoubleTap: _handleFileSelect,
-                  onSecondaryTap: _handlePaste,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Stack(
-                      children: [
-                        if (_previewData != null)
-                          Image.memory(_previewData!)
-                        else
-                          const Center(
-                            child: Text('ダブルクリック: ファイルから選択\n右クリック: クリップボードから貼り付け\nドラッグ&ドロップ: ファイルをドロップ'),
-                          ),
-                        if (candidateFiles.isNotEmpty)
-                          Container(
-                            color: Colors.blue.withOpacity(0.3),
-                            child: const Center(
-                              child: Text(
-                                'ファイルをドロップ',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
+              child: GestureDetector(
+                onDoubleTap: _handleFileSelect,
+                onSecondaryTap: _handlePaste,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                );
-              },
+                  child: Stack(
+                    children: [
+                      if (_previewData != null)
+                        Image.memory(_previewData!)
+                      else
+                        const Center(
+                          child: Text('ダブルクリック: ファイルから選択\n右クリック: クリップボードから貼り付け\nドラッグ&ドロップ: ファイルをドロップ'),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
           // 下半分: デコード結果
