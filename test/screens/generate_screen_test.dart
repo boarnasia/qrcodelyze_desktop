@@ -110,7 +110,7 @@ void main() {
         tester.element(find.byType(GenerateScreen)),
         listen: false,
       );
-      expect(qrDataProvider.qrData, testText);
+      expect(qrDataProvider.qrData, isEmpty);
 
       // デバウンス時間を待つ
       await tester.pump(Duration(milliseconds: 200));
