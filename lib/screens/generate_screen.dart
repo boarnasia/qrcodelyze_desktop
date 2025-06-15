@@ -29,6 +29,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
     _debounceTimer = Timer(Duration(milliseconds: AppConstants.qrCodeUpdateDelayMs), () {
       setState(() {
         qrData = value;
+        logInfo("QR コードを生成・更新しました。");
       });
     });
   }

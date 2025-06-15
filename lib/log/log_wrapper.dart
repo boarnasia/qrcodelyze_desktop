@@ -28,5 +28,5 @@ void _log(Level level, String message) {
   final caller = trace.length > 2 ? trace[2].trim() : 'unknown';
   appLogger.log(level, '$message → at $caller');
 
-  if (level == Level.INFO) appLogBuffer.add(message);
+  if (level >= Level.INFO) appLogBuffer.add(message, level);
 } 

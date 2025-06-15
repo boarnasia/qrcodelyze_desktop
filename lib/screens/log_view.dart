@@ -31,11 +31,10 @@ class LogView extends StatelessWidget {
                 builder: (context, snapshot) {
                   final logs = snapshot.data ?? [];
                   return Scrollbar(
-                    child: ListView.builder(
-                      itemCount: logs.length,
-                      itemBuilder: (context, index) {
-                        final log = logs[index];
-                        return Text(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: logs.map((log) => Text(
                           '[${log.level}] ${log.message}',
                           style: TextStyle(
                             color: log.level == Level.SEVERE
@@ -44,8 +43,8 @@ class LogView extends StatelessWidget {
                                     ? Colors.orange
                                     : Colors.black,
                           ),
-                        );
-                      },
+                        )).toList(),
+                      ),
                     ),
                   );
                 },

@@ -103,33 +103,34 @@ class _ScanScreenState extends State<ScanScreen> {
               child: Container(
                 alignment: Alignment.topLeft,
                 padding: const EdgeInsets.all(12),
-                child: _errorMessage != null
-                    ? Text(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_errorMessage != null)
+                      Text(
                         _errorMessage!,
                         style: TextStyle(color: Colors.red),
                       )
-                    : (_codeType != null || _codeContent != null)
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (_codeType != null)
-                                Text(
-                                  'コード種別: $_codeType',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                ),
-                              const SizedBox(height: 8),
-                              if (_codeContent != null)
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: Text(
-                                      _codeContent!,
-                                      style: const TextStyle(fontSize: 15),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          )
-                        : const Text('画像を読み込むとコード情報が表示されます'),
+                    else if (_codeType != null || _codeContent != null) ...[
+                      if (_codeType != null)
+                        Text(
+                          'コード種別: $_codeType',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      const SizedBox(height: 8),
+                      if (_codeContent != null)
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Text(
+                              _codeContent!,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        ),
+                    ] else
+                      const Text('画像を読み込むとコード情報が表示されます'),
+                  ],
+                ),
               ),
             ),
           ],
@@ -158,10 +159,12 @@ class _ScanScreenState extends State<ScanScreen> {
       if (result.isValid) {
         _codeType = result.format?.name;
         _codeContent = result.text;
+        logInfo('コードを検出しました: $_codeType');
       } else {
         _codeType = null;
         _codeContent = null;
         _errorMessage = 'コードが検出できませんでした';
+        logWarning('コードが検出できませんでした');
       }
     });
   }
