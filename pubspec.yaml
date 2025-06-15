@@ -42,6 +42,7 @@ dependencies:
   image: ^4.5.4  # 画像処理用
   ffi: ^2.1.0
   pasteboard: ^0.4.0
+  flutter_zxing: ^2.1.0
 
 dev_dependencies:
   flutter_test:

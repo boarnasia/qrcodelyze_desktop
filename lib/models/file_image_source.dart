@@ -7,7 +7,11 @@ import '../log/log_wrapper.dart';
 /// ファイル選択による画像入力ソース
 class FileImageSource implements ImageSource {
   Uint8List? _imageData;
+  img.Image? _rawImage;
   
+  @override
+  img.Image? get rawImage => _rawImage;
+
   @override
   String get sourceName => 'ファイル';
 
@@ -26,7 +30,7 @@ class FileImageSource implements ImageSource {
     if (file == null) {
       throw Exception('ファイルが選択されませんでした');
     }
-    
+
     final bytes = await file.readAsBytes();
     if (bytes.isEmpty) {
       throw Exception('ファイルの読み込みに失敗しました');
@@ -45,6 +49,7 @@ class FileImageSource implements ImageSource {
     if (image == null) {
       throw Exception('画像のデコードに失敗しました');
     }
+    _rawImage = image;
     
     final resized = img.copyResize(
       image,

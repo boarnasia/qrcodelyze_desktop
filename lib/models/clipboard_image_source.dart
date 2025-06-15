@@ -4,8 +4,13 @@ import 'package:pasteboard/pasteboard.dart';
 import 'image_source.dart';
 
 class ClipboardImageSource implements ImageSource {
+  img.Image? _rawImage;
+
   @override
   String get sourceName => 'クリップボード';
+
+  @override
+  img.Image? get rawImage => _rawImage;
 
   @override
   Future<Uint8List> getImageData() async {
@@ -24,6 +29,7 @@ class ClipboardImageSource implements ImageSource {
     if (image == null) {
       throw Exception('画像のデコードに失敗しました');
     }
+    _rawImage = image;
     final resized = img.copyResize(image, width: 300, height: 300);
     return Uint8List.fromList(img.encodeJpg(resized, quality: 85));
   }

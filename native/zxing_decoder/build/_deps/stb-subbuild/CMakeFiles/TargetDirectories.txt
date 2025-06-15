@@ -1,3 +1,0 @@
-E:/masat/dev/qrcodelyze_desktop/native/zxing_decoder/build/_deps/stb-subbuild/CMakeFiles/stb-populate.dir
-E:/masat/dev/qrcodelyze_desktop/native/zxing_decoder/build/_deps/stb-subbuild/CMakeFiles/ALL_BUILD.dir
-E:/masat/dev/qrcodelyze_desktop/native/zxing_decoder/build/_deps/stb-subbuild/CMakeFiles/ZERO_CHECK.dir
