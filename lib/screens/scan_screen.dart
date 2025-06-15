@@ -52,7 +52,6 @@ Uint8List convertToRGBX(img.Image decoded) {
 class _ScanScreenState extends State<ScanScreen> {
   ImageSource? _currentSource;
   Uint8List? _previewData;
-  String? _scanResult;
   String? _errorMessage;
   String? _codeType;
   String? _codeContent;
@@ -171,7 +170,6 @@ class _ScanScreenState extends State<ScanScreen> {
     setState(() {
       _currentSource = FileImageSource();
       _previewData = null;
-      _scanResult = null;
       _errorMessage = null;
       _codeType = null;
       _codeContent = null;
@@ -190,7 +188,6 @@ class _ScanScreenState extends State<ScanScreen> {
     setState(() {
       _currentSource = ClipboardImageSource();
       _previewData = null;
-      _scanResult = null;
       _errorMessage = null;
       _codeType = null;
       _codeContent = null;
