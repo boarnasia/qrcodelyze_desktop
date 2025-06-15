@@ -67,30 +67,39 @@ class _GenerateScreenState extends State<GenerateScreen> {
               ),
             ),
             Expanded(
-              child: Column(
+              child: Stack(
                 children: [
-                  Expanded(
-                    child: KeyboardListener(
-                      focusNode: _focusNode,
-                      onKeyEvent: (event) {
-                        if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.escape) {
-                          setState(() {
-                            logInfo("テキストをクリアしました。");
-                            Provider.of<QrDataProvider>(context, listen: false).clearQrData();
-                            _textController.clear();
-                          });
-                        }
-                      },
-                      child: TextField(
-                        controller: _textController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter text',
-                        ),
-                        maxLines: null,
-                        expands: true,
-                        textAlignVertical: TextAlignVertical.top,
-                        onChanged: _updateQrCode,
+                  KeyboardListener(
+                    focusNode: _focusNode,
+                    onKeyEvent: (event) {
+                      if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.escape) {
+                        setState(() {
+                          logInfo("テキストをクリアしました。");
+                          Provider.of<QrDataProvider>(context, listen: false).clearQrData();
+                          _textController.clear();
+                        });
+                      }
+                    },
+                    child: TextField(
+                      controller: _textController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter text',
+                      ),
+                      maxLines: null,
+                      expands: true,
+                      textAlignVertical: TextAlignVertical.top,
+                      onChanged: _updateQrCode,
+                    ),
+                  ),
+                  Positioned(
+                    right: 12,
+                    bottom: 12,
+                    child: Text(
+                      'ESC でクリア',
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 13,
                       ),
                     ),
                   ),
