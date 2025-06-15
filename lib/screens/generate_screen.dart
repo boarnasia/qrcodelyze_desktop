@@ -15,11 +15,13 @@ class GenerateScreen extends StatefulWidget {
 class _GenerateScreenState extends State<GenerateScreen> {
   String qrData = '';
   final TextEditingController _textController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   Timer? _debounceTimer;
 
   @override
   void dispose() {
     _textController.dispose();
+    _focusNode.dispose();
     _debounceTimer?.cancel();
     super.dispose();
   }
@@ -54,42 +56,37 @@ class _GenerateScreenState extends State<GenerateScreen> {
               ),
             ),
             Expanded(
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(0),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: KeyboardListener(
-                        focusNode: FocusNode(),
-                        onKeyEvent: (event) {
-                          if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.escape) {
-                            setState(() {
-                              logInfo("テキストをクリアしました。");
-                              qrData = '';
-                              _textController.clear();
-                            });
-                          }
-                        },
-                        child: TextField(
-                          controller: _textController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Enter text',
-                          ),
-                          enabled: true,
-                          maxLines: null,
-                          expands: true,
-                          textAlignVertical: TextAlignVertical.top,
-                          onChanged: (value) {
-                            _updateQrCode(value);
-                          },
+              child: Column(
+                children: [
+                  Expanded(
+                    child: KeyboardListener(
+                      focusNode: _focusNode,
+                      onKeyEvent: (event) {
+                        if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.escape) {
+                          setState(() {
+                            logInfo("テキストをクリアしました。");
+                            qrData = '';
+                            _textController.clear();
+                          });
+                        }
+                      },
+                      child: TextField(
+                        controller: _textController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter text',
                         ),
+                        maxLines: null,
+                        expands: true,
+                        textAlignVertical: TextAlignVertical.top,
+                        onChanged: _updateQrCode,
                       ),
                     ),
-                    Positioned(
-                      right: 12,
-                      bottom: 12,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12, bottom: 12),
                       child: Text(
                         'ESC でクリア',
                         style: TextStyle(
@@ -98,8 +95,8 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
