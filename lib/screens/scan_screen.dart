@@ -7,6 +7,7 @@ import '../log/log_wrapper.dart';
 import '../models/clipboard_image_source.dart';
 import '../models/file_image_source.dart';
 import '../models/image_source.dart';
+import '../utils/image_processor.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -80,29 +81,15 @@ class _ScanScreenState extends State<ScanScreen> {
       _previewData = previewData;
     });
 
-    final rawImage = _currentSource!.rawImage!;
-    final imageData = convertToRGBX(rawImage);
-    final params = DecodeParams(
-      imageFormat: ImageFormat.rgbx,
-      format: Format.any,
-      width: rawImage.width,
-      height: rawImage.height,
-    );
-
-    final result = zx.readBarcode(imageData, params);
+    final result = await ImageProcessor.decodeImageSource(_currentSource!);
     setState(() {
       if (result.isValid) {
         _codeType = result.format?.name;
         _codeContent = result.text;
-        if (_codeContent != null) {
-          Clipboard.setData(ClipboardData(text: _codeContent!));
-        }
-        logInfo('コードを検出: $_codeType, クリップボードへコピーしました');
       } else {
         _codeType = null;
         _codeContent = null;
         _errorMessage = 'コードが検出できませんでした';
-        logWarning('コードが検出できませんでした');
       }
     });
   }
