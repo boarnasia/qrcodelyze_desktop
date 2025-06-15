@@ -1,25 +1,46 @@
 import 'package:logging/logging.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 
 final Logger appLogger = Logger('QRcodelyze');
+
+/// ログエントリ
+class LogEntry {
+  final DateTime timestamp;
+  final String message;
+  final Level level;
+
+  LogEntry(this.message, this.level) : timestamp = DateTime.now();
+}
 
 /// ログバッファ（最新logBufferSize件まで保持）
 class LogBuffer {
   final int maxLength;
-  final List<String> _buffer = [];
+  final List<LogEntry> _buffer = [];
+  final _controller = StreamController<List<LogEntry>>.broadcast();
 
-  LogBuffer(this.maxLength);
+  LogBuffer(this.maxLength) {
+    _controller.add(List.unmodifiable(_buffer));
+  }
 
-  void add(String log) {
-    _buffer.add(log);
+  Stream<List<LogEntry>> get stream => _controller.stream;
+
+  void add(String message, [Level level = Level.INFO]) {
+    final entry = LogEntry(message, level);
+    _buffer.add(entry);
     if (_buffer.length > maxLength) {
       _buffer.removeAt(0);
     }
+    _controller.add(List.unmodifiable(_buffer));
   }
 
-  List<String> get logs => List.unmodifiable(_buffer);
+  List<LogEntry> get logs => List.unmodifiable(_buffer);
 
-  String get latest => _buffer.isNotEmpty ? _buffer.last : '';
+  LogEntry? get latest => _buffer.isNotEmpty ? _buffer.last : null;
+
+  void dispose() {
+    _controller.close();
+  }
 }
 
 final LogBuffer appLogBuffer = LogBuffer(1000); // AppConstants.logBufferSizeはimportできないため数値直書き
