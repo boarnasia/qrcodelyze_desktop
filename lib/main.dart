@@ -6,7 +6,6 @@ import 'screens/scan_screen.dart';
 import 'screens/log_view.dart';
 import 'log/logger.dart';
 import 'log/log_wrapper.dart';
-import 'plugins/drag_drop_plugin.dart';
 
 // 1. ScreenModeの追加
 enum ScreenMode { generate, scan }
@@ -17,7 +16,6 @@ void main(List<String> args) async {
   
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  DragDropPlugin.initialize();
 
   const Size windowSize = AppConstants.windowSize;
 

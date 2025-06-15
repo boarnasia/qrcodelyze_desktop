@@ -1,15 +1,12 @@
-import 'package:image/image.dart' as img;
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/image_source.dart';
-import '../models/file_image_source.dart';
-import '../models/clipboard_image_source.dart';
-import '../log/log_wrapper.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
-import 'package:flutter/services.dart' show Clipboard;
-import 'package:image_picker/image_picker.dart' as picker;
-import 'package:file_selector/file_selector.dart';
-import 'package:desktop_drop/desktop_drop.dart';
+import 'package:image/image.dart' as img;
+import '../log/log_wrapper.dart';
+import '../models/clipboard_image_source.dart';
+import '../models/file_image_source.dart';
+import '../models/image_source.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});

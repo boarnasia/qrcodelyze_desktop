@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../log/logger.dart';
 import 'package:logging/logging.dart';
+import '../log/logger.dart';
 
 class LogView extends StatelessWidget {
   final bool expanded;
