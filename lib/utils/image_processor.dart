@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
 import 'package:image/image.dart' as img;
 import '../models/image_source.dart';
-import '../log/log_wrapper.dart';
 
 /// Uint8List (PNG/JPEGなど) を RGBX形式に変換
 Uint8List convertToRGBX(img.Image decoded) {
@@ -37,12 +36,7 @@ class ImageProcessor {
     );
 
     final result = zx.readBarcode(imageData, params);
-    if (result.isValid && result.text != null) {
-      await Clipboard.setData(ClipboardData(text: result.text!));
-      logInfo('コードを検出: ${result.format?.name}, クリップボードへコピーしました');
-    } else {
-      logWarning('コードが検出できませんでした');
-    }
+
     return result;
   }
 } 

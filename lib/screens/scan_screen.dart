@@ -66,32 +66,34 @@ class _ScanScreenState extends State<ScanScreen> {
     _resetState();
 
     try {
-      await _decodeImageSource();
+      final previewData = await _currentSource!.getPreviewData();
+      setState(() {
+        _previewData = previewData;
+      });
+
+      final result = await ImageProcessor.decodeImageSource(_currentSource!);
+      if (result.isValid && result.text != null) {
+        await Clipboard.setData(ClipboardData(text: result.text!));
+        logInfo('コードを検出: ${result.format?.name}, クリップボードへコピーしました');
+      } else {
+        logWarning('コードが検出できませんでした');
+      }
+      setState(() {
+        if (result.isValid && result.text != null) {
+          _codeType = result.format?.name;
+          _codeContent = result.text;
+        } else {
+          _codeType = null;
+          _codeContent = null;
+          _errorMessage = 'コードが検出できませんでした';
+        }
+      });
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
       });
       logWarning('画像処理エラー: $e');
     }
-  }
-
-  Future<void> _decodeImageSource() async {
-    final previewData = await _currentSource!.getPreviewData();
-    setState(() {
-      _previewData = previewData;
-    });
-
-    final result = await ImageProcessor.decodeImageSource(_currentSource!);
-    setState(() {
-      if (result.isValid) {
-        _codeType = result.format?.name;
-        _codeContent = result.text;
-      } else {
-        _codeType = null;
-        _codeContent = null;
-        _errorMessage = 'コードが検出できませんでした';
-      }
-    });
   }
 
   @override
