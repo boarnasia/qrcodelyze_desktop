@@ -134,7 +134,12 @@ class _ScanScreenState extends State<ScanScreen> {
                         Image.memory(_previewData!)
                       else
                         const Center(
-                          child: Text('ダブルクリック: ファイルから選択\n右クリック: クリップボードから貼り付け\nドラッグ&ドロップ: ファイルをドロップ'),
+                          child: Text(
+                            'ダブルクリック: ファイルから選択\n'
+                            '右クリック: クリップボードから貼り付け\n'
+                            'ドラッグ&ドロップ: ファイルをドロップ',
+                            key: Key('scan_instruction_text'),
+                          ),
                         ),
                     ],
                   ),
@@ -171,7 +176,10 @@ class _ScanScreenState extends State<ScanScreen> {
                         ),
                       ),
                   ] else
-                    const Text('画像を読み込むとコード情報が表示されます'),
+                    const Text(
+                      '画像を読み込むとコード情報が表示されます',
+                      key: Key('scan_result_help_text'),
+                    ),
                 ],
               ),
             ),
