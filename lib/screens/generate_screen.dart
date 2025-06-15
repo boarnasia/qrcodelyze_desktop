@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../constants/app_constants.dart';
 import '../log/log_wrapper.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 
 class GenerateScreen extends StatefulWidget {
   const GenerateScreen({super.key});
@@ -13,11 +15,22 @@ class GenerateScreen extends StatefulWidget {
 class _GenerateScreenState extends State<GenerateScreen> {
   String qrData = '';
   final TextEditingController _textController = TextEditingController();
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
     _textController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _updateQrCode(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(Duration(milliseconds: AppConstants.qrCodeUpdateDelayMs), () {
+      setState(() {
+        qrData = value;
+      });
+    });
   }
 
   @override
@@ -46,10 +59,10 @@ class _GenerateScreenState extends State<GenerateScreen> {
                 child: Stack(
                   children: [
                     Positioned.fill(
-                      child: RawKeyboardListener(
+                      child: KeyboardListener(
                         focusNode: FocusNode(),
-                        onKey: (event) {
-                          if (event.runtimeType.toString() == 'RawKeyUpEvent' && event.logicalKey.keyLabel == 'Escape') {
+                        onKeyEvent: (event) {
+                          if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.escape) {
                             setState(() {
                               logInfo("テキストをクリアしました。");
                               qrData = '';
@@ -68,9 +81,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
                           expands: true,
                           textAlignVertical: TextAlignVertical.top,
                           onChanged: (value) {
-                            setState(() {
-                              qrData = value;
-                            });
+                            _updateQrCode(value);
                           },
                         ),
                       ),
