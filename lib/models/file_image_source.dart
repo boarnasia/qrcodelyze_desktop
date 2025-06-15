@@ -64,12 +64,6 @@ class FileImageSource implements ImageSource {
     }
     _rawImage = image;
     
-    final resized = img.copyResize(
-      image,
-      width: 300,  // プレビュー用の適度なサイズ
-      height: 300,
-    );
-    
-    return Uint8List.fromList(img.encodeJpg(resized, quality: 85));
+    return Uint8List.fromList(img.encodeJpg(image, quality: 85));
   }
 } 

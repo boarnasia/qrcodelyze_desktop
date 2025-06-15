@@ -17,21 +17,18 @@ class ScanScreen extends StatefulWidget {
 
 /// Uint8List (PNG/JPEGなど) を RGBX形式に変換
 Uint8List convertToRGBX(img.Image decoded) {
-  int width = decoded.width;
-  int height = decoded.height;
+  final width = decoded.width;
+  final height = decoded.height;
+  final rgbxBytes = Uint8List(width * height * 4);
+  var offset = 0;
 
-  // RGBXバッファ作成
-  Uint8List rgbxBytes = Uint8List(width * height * 4);
-  int offset = 0;
-
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      img.Pixel pixel = decoded.getPixel(x, y);
-
+  for (var y = 0; y < height; y++) {
+    for (var x = 0; x < width; x++) {
+      final pixel = decoded.getPixel(x, y);
       rgbxBytes[offset++] = pixel.r.toInt();
       rgbxBytes[offset++] = pixel.g.toInt();
       rgbxBytes[offset++] = pixel.b.toInt();
-      rgbxBytes[offset++] = 255; // X値（固定値）
+      rgbxBytes[offset++] = 255;
     }
   }
 
@@ -52,37 +49,80 @@ class _ScanScreenState extends State<ScanScreen> {
     super.dispose();
   }
 
+  void _resetState() {
+    setState(() {
+      _previewData = null;
+      _errorMessage = null;
+      _codeType = null;
+      _codeContent = null;
+    });
+  }
+
+  Future<void> _handleImageSource(ImageSource source) async {
+    setState(() {
+      _currentSource = source;
+    });
+    _resetState();
+
+    try {
+      await _decodeImageSource();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      logWarning('画像処理エラー: $e');
+    }
+  }
+
+  Future<void> _decodeImageSource() async {
+    final previewData = await _currentSource!.getPreviewData();
+    setState(() {
+      _previewData = previewData;
+    });
+
+    final rawImage = _currentSource!.rawImage!;
+    final imageData = convertToRGBX(rawImage);
+    final params = DecodeParams(
+      imageFormat: ImageFormat.rgbx,
+      format: Format.any,
+      width: rawImage.width,
+      height: rawImage.height,
+    );
+
+    final result = zx.readBarcode(imageData, params);
+    setState(() {
+      if (result.isValid) {
+        _codeType = result.format?.name;
+        _codeContent = result.text;
+        if (_codeContent != null) {
+          Clipboard.setData(ClipboardData(text: _codeContent!));
+        }
+        logInfo('コードを検出: $_codeType, クリップボードへコピーしました');
+      } else {
+        _codeType = null;
+        _codeContent = null;
+        _errorMessage = 'コードが検出できませんでした';
+        logWarning('コードが検出できませんでした');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // 上半分: プレビュー画像
           Expanded(
             child: DropTarget(
-              onDragDone: (details) async {
+              onDragDone: (details) {
                 if (details.files.isNotEmpty) {
-                  setState(() {
-                    _currentSource = FileImageSource(file: details.files.first);
-                    _previewData = null;
-                    _errorMessage = null;
-                    _codeType = null;
-                    _codeContent = null;
-                  });
-                  try {
-                    await _decodeImageSource();
-                  } catch (e) {
-                    setState(() {
-                      _errorMessage = e.toString();
-                    });
-                    logWarning('ファイル選択エラー: $e');
-                  }
+                  _handleImageSource(FileImageSource(file: details.files.first));
                 }
               },
               child: GestureDetector(
-                onDoubleTap: _handleFileSelect,
-                onSecondaryTap: _handlePaste,
+                onDoubleTap: () => _handleImageSource(FileImageSource()),
+                onSecondaryTap: () => _handleImageSource(ClipboardImageSource()),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
@@ -102,7 +142,6 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
           ),
-          // 下半分: デコード結果
           Expanded(
             child: Container(
               alignment: Alignment.topLeft,
@@ -113,7 +152,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   if (_errorMessage != null)
                     Text(
                       _errorMessage!,
-                      style: TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red),
                     )
                   else if (_codeType != null || _codeContent != null) ...[
                     if (_codeType != null)
@@ -140,76 +179,5 @@ class _ScanScreenState extends State<ScanScreen> {
         ],
       ),
     );
-  }
-
-  // 画像を読み込んでコードを検出する
-  Future<void> _decodeImageSource() async {
-    final previewData = await _currentSource!.getPreviewData();
-    setState(() {
-      _previewData = previewData;
-    });
-
-    final imageData = convertToRGBX(_currentSource!.rawImage!);
-    final width = _currentSource!.rawImage!.width;
-    final height = _currentSource!.rawImage!.height;
-    final params = DecodeParams(
-      imageFormat: ImageFormat.rgbx,
-      format: Format.any,
-      width: width,
-      height: height,
-    );
-    final result = zx.readBarcode(imageData, params);
-    setState(() {
-      if (result.isValid) {
-        _codeType = result.format?.name;
-        _codeContent = result.text;
-        // コード内容をクリップボードにコピー
-        if (_codeContent != null) {
-          Clipboard.setData(ClipboardData(text: _codeContent!));
-        }
-        logInfo('コードを検出しました: $_codeType');
-      } else {
-        _codeType = null;
-        _codeContent = null;
-        _errorMessage = 'コードが検出できませんでした';
-        logWarning('コードが検出できませんでした');
-      }
-    });
-  }
-
-  Future<void> _handleFileSelect() async {
-    setState(() {
-      _currentSource = FileImageSource();
-      _previewData = null;
-      _errorMessage = null;
-      _codeType = null;
-      _codeContent = null;
-    });
-    try {
-      await _decodeImageSource();
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-      logWarning('ファイル選択エラー: $e');
-    }
-  }
-
-  Future<void> _handlePaste() async {
-    setState(() {
-      _currentSource = ClipboardImageSource();
-      _previewData = null;
-      _errorMessage = null;
-      _codeType = null;
-      _codeContent = null;
-    });
-    try {
-      await _decodeImageSource();
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-      logWarning('クリップボード貼り付けエラー: $e');
-    }
   }
 } 
