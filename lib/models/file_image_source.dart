@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_selector/file_selector.dart' show XFile, XTypeGroup, openFile;
 import 'package:image/image.dart' as img;
 import 'image_source.dart';
 import '../log/log_wrapper.dart';
@@ -8,6 +8,9 @@ import '../log/log_wrapper.dart';
 class FileImageSource implements ImageSource {
   Uint8List? _imageData;
   img.Image? _rawImage;
+  XFile? _file;
+  
+  FileImageSource({XFile? file}) : _file = file;
   
   @override
   img.Image? get rawImage => _rawImage;
@@ -18,6 +21,16 @@ class FileImageSource implements ImageSource {
   @override
   Future<Uint8List> getImageData() async {
     if (_imageData != null) {
+      return _imageData!;
+    }
+    
+    if (_file != null) {
+      final bytes = await _file!.readAsBytes();
+      if (bytes.isEmpty) {
+        throw Exception('ファイルの読み込みに失敗しました');
+      }
+      _imageData = bytes;
+      logFine('画像ファイルを読み込みました: ${_file!.name}');
       return _imageData!;
     }
     

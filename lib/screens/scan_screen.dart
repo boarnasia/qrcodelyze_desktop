@@ -6,7 +6,9 @@ import '../models/file_image_source.dart';
 import '../models/clipboard_image_source.dart';
 import '../log/log_wrapper.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
-import 'dart:io';
+import 'package:flutter/services.dart' show Clipboard;
+import 'package:image_picker/image_picker.dart' as picker;
+import 'package:file_selector/file_selector.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -54,76 +56,105 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardListener(
-      focusNode: _focusNode,
-      autofocus: true,
-      onKeyEvent: (event) {
-        if (event is KeyUpEvent &&
-            event.logicalKey == LogicalKeyboardKey.keyV &&
-            (HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.controlLeft) ||
-             HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.controlRight))) {
-          _handlePaste();
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // 上半分: プレビュー画像
-            Expanded(
-              child: GestureDetector(
-                onDoubleTap: _handleFileSelect,
-                onSecondaryTap: _handlePaste,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: _previewData != null
-                      ? Image.memory(_previewData!)
-                      : const Center(
-                          child: Text('ダブルクリック: ファイルから選択\n右クリック/Ctrl+V: クリップボードから貼り付け'),
-                        ),
-                ),
-              ),
-            ),
-            // 下半分: デコード結果
-            Expanded(
-              child: Container(
-                alignment: Alignment.topLeft,
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_errorMessage != null)
-                      Text(
-                        _errorMessage!,
-                        style: TextStyle(color: Colors.red),
-                      )
-                    else if (_codeType != null || _codeContent != null) ...[
-                      if (_codeType != null)
-                        Text(
-                          'コード種別: $_codeType',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      const SizedBox(height: 8),
-                      if (_codeContent != null)
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Text(
-                              _codeContent!,
-                              style: const TextStyle(fontSize: 15),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // 上半分: プレビュー画像
+          Expanded(
+            child: DragTarget<XFile>(
+              onWillAcceptWithDetails: (file) => file != null,
+              onAcceptWithDetails: (details) async {
+                setState(() {
+                  _currentSource = FileImageSource(file: details.data);
+                  _previewData = null;
+                  _errorMessage = null;
+                  _codeType = null;
+                  _codeContent = null;
+                });
+                try {
+                  await _decodeImageSource();
+                } catch (e) {
+                  setState(() {
+                    _errorMessage = e.toString();
+                  });
+                  logWarning('ファイル選択エラー: $e');
+                }
+              },
+              builder: (context, candidateFiles, rejectedFiles) {
+                return GestureDetector(
+                  onDoubleTap: _handleFileSelect,
+                  onSecondaryTap: _handlePaste,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Stack(
+                      children: [
+                        if (_previewData != null)
+                          Image.memory(_previewData!)
+                        else
+                          const Center(
+                            child: Text('ダブルクリック: ファイルから選択\n右クリック: クリップボードから貼り付け\nドラッグ&ドロップ: ファイルをドロップ'),
+                          ),
+                        if (candidateFiles.isNotEmpty)
+                          Container(
+                            color: Colors.blue.withOpacity(0.3),
+                            child: const Center(
+                              child: Text(
+                                'ファイルをドロップ',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          // 下半分: デコード結果
+          Expanded(
+            child: Container(
+              alignment: Alignment.topLeft,
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_errorMessage != null)
+                    Text(
+                      _errorMessage!,
+                      style: TextStyle(color: Colors.red),
+                    )
+                  else if (_codeType != null || _codeContent != null) ...[
+                    if (_codeType != null)
+                      Text(
+                        'コード種別: $_codeType',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    const SizedBox(height: 8),
+                    if (_codeContent != null)
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Text(
+                            _codeContent!,
+                            style: const TextStyle(fontSize: 15),
+                          ),
                         ),
-                    ] else
-                      const Text('画像を読み込むとコード情報が表示されます'),
-                  ],
-                ),
+                      ),
+                  ] else
+                    const Text('画像を読み込むとコード情報が表示されます'),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -149,6 +180,10 @@ class _ScanScreenState extends State<ScanScreen> {
       if (result.isValid) {
         _codeType = result.format?.name;
         _codeContent = result.text;
+        // コード内容をクリップボードにコピー
+        if (_codeContent != null) {
+          Clipboard.setData(ClipboardData(text: _codeContent!));
+        }
         logInfo('コードを検出しました: $_codeType');
       } else {
         _codeType = null;
