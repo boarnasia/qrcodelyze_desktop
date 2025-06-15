@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/qr_data_provider.dart';
 import '../log/log_wrapper.dart';
+import 'package:pasteboard/pasteboard.dart';
 
 class GenerateScreen extends StatefulWidget {
   const GenerateScreen({super.key});
@@ -37,8 +38,14 @@ class _GenerateScreenState extends State<GenerateScreen> {
                   builder: (context, provider, _) {
                     final qrCodeImage = provider.qrCodeImage;
                     if (qrCodeImage != null) {
-                      return Image.memory(
-                        qrCodeImage,
+                      return GestureDetector(
+                        onSecondaryTap: () async {
+                          await Pasteboard.writeImage(qrCodeImage);
+                          logInfo('QRコード画像をクリップボードにコピーしました');
+                        },
+                        child: Image.memory(
+                          qrCodeImage,
+                        ),
                       );
                     }
                     return const Text('QRコードの生成に失敗しました');
