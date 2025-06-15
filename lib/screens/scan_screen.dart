@@ -24,17 +24,6 @@ Uint8List convertToRGBX(img.Image decoded) {
   Uint8List rgbxBytes = Uint8List(width * height * 4);
   int offset = 0;
 
-  // デバッグ用にピクセル値をCSVに出力
-  StringBuffer csvBuffer = StringBuffer();
-  csvBuffer.writeln('x,y,r,g,b');
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      img.Pixel pixel = decoded.getPixel(x, y);
-      csvBuffer.writeln('$x,$y,${pixel.r},${pixel.g},${pixel.b}');
-    }
-  }
-  File('C:\\Users\\masat\\OneDrive\\Desktop\\qrcode.csv').writeAsStringSync(csvBuffer.toString());
-
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       img.Pixel pixel = decoded.getPixel(x, y);
@@ -139,6 +128,7 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
+  // 画像を読み込んでコードを検出する
   Future<void> _decodeImageSource() async {
     final previewData = await _currentSource!.getPreviewData();
     setState(() {

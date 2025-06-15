@@ -30,7 +30,7 @@ class ClipboardImageSource implements ImageSource {
       throw Exception('画像のデコードに失敗しました');
     }
     _rawImage = image;
-    final resized = img.copyResize(image, width: 300, height: 300);
-    return Uint8List.fromList(img.encodeJpg(resized, quality: 85));
+
+    return Uint8List.fromList(img.encodeJpg(image, quality: 85));
   }
 }
