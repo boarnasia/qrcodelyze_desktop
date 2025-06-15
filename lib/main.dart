@@ -8,6 +8,7 @@ import 'screens/log_view.dart';
 import 'log/logger.dart';
 import 'log/log_wrapper.dart';
 import 'models/qr_data_provider.dart';
+import 'providers/scan_provider.dart';
 
 // 1. ScreenModeの追加
 enum ScreenMode { generate, scan }
@@ -35,8 +36,11 @@ void main(List<String> args) async {
   });
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => QrDataProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => QrDataProvider()),
+        ChangeNotifierProvider(create: (_) => ScanProvider()),
+      ],
       child: const MyApp(),
     ),
   );

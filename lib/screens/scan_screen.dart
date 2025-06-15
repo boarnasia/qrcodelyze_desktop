@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
 import 'package:image/image.dart' as img;
+import 'package:provider/provider.dart';
 import '../log/log_wrapper.dart';
 import '../models/clipboard_image_source.dart';
 import '../models/file_image_source.dart';
 import '../models/image_source.dart';
+import '../providers/scan_provider.dart';
 import '../utils/image_processor.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -37,11 +39,6 @@ Uint8List convertToRGBX(img.Image decoded) {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
-  ImageSource? _currentSource;
-  Uint8List? _previewData;
-  String? _errorMessage;
-  String? _codeType;
-  String? _codeContent;
   final _focusNode = FocusNode();
 
   @override
@@ -50,48 +47,29 @@ class _ScanScreenState extends State<ScanScreen> {
     super.dispose();
   }
 
-  void _resetState() {
-    setState(() {
-      _previewData = null;
-      _errorMessage = null;
-      _codeType = null;
-      _codeContent = null;
-    });
-  }
-
   Future<void> _handleImageSource(ImageSource source) async {
-    setState(() {
-      _currentSource = source;
-    });
-    _resetState();
+    final provider = context.read<ScanProvider>();
+    provider.setImageSource(source);
 
     try {
-      final previewData = await _currentSource!.getPreviewData();
-      setState(() {
-        _previewData = previewData;
-      });
+      final previewData = await source.getPreviewData();
+      provider.setPreviewData(previewData);
 
-      final result = await ImageProcessor.decodeImageSource(_currentSource!);
+      final result = await ImageProcessor.decodeImageSource(source);
       if (result.isValid && result.text != null) {
         await Clipboard.setData(ClipboardData(text: result.text!));
+        provider.setCodeResult(
+          type: result.format?.name,
+          content: result.text,
+        );
         logInfo('コードを検出: ${result.format?.name}, クリップボードへコピーしました');
       } else {
+        provider.setCodeResult(type: null, content: null);
+        provider.setError('コードが検出できませんでした');
         logWarning('コードが検出できませんでした');
       }
-      setState(() {
-        if (result.isValid && result.text != null) {
-          _codeType = result.format?.name;
-          _codeContent = result.text;
-        } else {
-          _codeType = null;
-          _codeContent = null;
-          _errorMessage = 'コードが検出できませんでした';
-        }
-      });
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      provider.setError(e.toString());
       logWarning('画像処理エラー: $e');
     }
   }
@@ -119,17 +97,20 @@ class _ScanScreenState extends State<ScanScreen> {
                   ),
                   child: Stack(
                     children: [
-                      if (_previewData != null)
-                        Image.memory(_previewData!)
-                      else
-                        const Center(
-                          child: Text(
-                            'ダブルクリック: ファイルから選択\n'
-                            '右クリック: クリップボードから貼り付け\n'
-                            'ドラッグ&ドロップ: ファイルをドロップ',
-                            key: Key('scan_instruction_text'),
-                          ),
+                      Center(
+                        child: Consumer<ScanProvider>(
+                          builder: (context, provider, _) {
+                            return provider.previewData != null
+                                ? Image.memory(provider.previewData!)
+                                : const Text(
+                                    'ダブルクリック: ファイルから選択\n'
+                                    '右クリック: クリップボードから貼り付け\n'
+                                    'ドラッグ&ドロップ: ファイルをドロップ',
+                                    key: Key('scan_instruction_text'),
+                                  );
+                          },
                         ),
+                      ),
                     ],
                   ),
                 ),
@@ -140,36 +121,40 @@ class _ScanScreenState extends State<ScanScreen> {
             child: Container(
               alignment: Alignment.topLeft,
               padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_errorMessage != null)
-                    Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
-                    )
-                  else if (_codeType != null || _codeContent != null) ...[
-                    if (_codeType != null)
-                      Text(
-                        'コード種別: $_codeType',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    const SizedBox(height: 8),
-                    if (_codeContent != null)
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Text(
-                            _codeContent!,
-                            style: const TextStyle(fontSize: 15),
+              child: Consumer<ScanProvider>(
+                builder: (context, provider, _) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (provider.errorMessage != null)
+                        Text(
+                          provider.errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        )
+                      else if (provider.codeType != null || provider.codeContent != null) ...[
+                        if (provider.codeType != null)
+                          Text(
+                            'コード種別: ${provider.codeType}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
+                        const SizedBox(height: 8),
+                        if (provider.codeContent != null)
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                provider.codeContent!,
+                                style: const TextStyle(fontSize: 15),
+                              ),
+                            ),
+                          ),
+                      ] else
+                        const Text(
+                          '画像を読み込むとコード情報が表示されます',
+                          key: Key('scan_result_help_text'),
                         ),
-                      ),
-                  ] else
-                    const Text(
-                      '画像を読み込むとコード情報が表示されます',
-                      key: Key('scan_result_help_text'),
-                    ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           ),
