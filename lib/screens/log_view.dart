@@ -53,7 +53,8 @@ class LogView extends StatelessWidget {
                 stream: appLogBuffer.stream,
                 initialData: appLogBuffer.logs,
                 builder: (context, snapshot) {
-                  final latest = snapshot.data?.last;
+                  final logs = snapshot.data ?? [];
+                  final latest = logs.isNotEmpty ? logs.last : null;
                   return Align(
                     alignment: Alignment.centerLeft,
                     child: Text(

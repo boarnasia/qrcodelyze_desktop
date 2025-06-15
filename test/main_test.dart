@@ -3,11 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qrcodelyze_desktop/main.dart';
 import 'package:qrcodelyze_desktop/screens/generate_screen.dart';
 import 'package:qrcodelyze_desktop/screens/scan_screen.dart';
+import 'package:qrcodelyze_desktop/screens/log_view.dart';
+import 'package:provider/provider.dart';
+import 'package:qrcodelyze_desktop/models/qr_data_provider.dart';
 
 void main() {
   group('MyHomePage Tests', () {
     testWidgets('初期状態のテスト', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: MyHomePage(title: 'QR Codelyze')));
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => QrDataProvider(),
+          child: const MaterialApp(home: MyHomePage(title: 'QR Codelyze')),
+        ),
+      );
 
       // 初期状態でGenerate画面が表示されていることを確認
       expect(find.byType(GenerateScreen), findsOneWidget);
@@ -28,10 +36,18 @@ void main() {
         find.widgetWithText(ElevatedButton, 'Scan')
       );
       expect(scanButton.onPressed, isNotNull);
+
+      // ログビューが表示されていることを確認
+      expect(find.byType(LogView), findsOneWidget);
     });
 
     testWidgets('画面切り替えのテスト', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: MyHomePage(title: 'QR Codelyze')));
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => QrDataProvider(),
+          child: const MaterialApp(home: MyHomePage(title: 'QR Codelyze')),
+        ),
+      );
 
       // 初期状態でGenerate画面が表示されていることを確認
       expect(find.byType(GenerateScreen), findsOneWidget);
@@ -74,6 +90,41 @@ void main() {
         find.widgetWithText(ElevatedButton, 'Scan')
       );
       expect(scanButton2.onPressed, isNotNull);
+    });
+
+    testWidgets('ログビューの展開/折りたたみテスト', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => QrDataProvider(),
+          child: const MaterialApp(home: MyHomePage(title: 'QR Codelyze')),
+        ),
+      );
+
+      // 初期状態ではログビューが折りたたまれていることを確認
+      expect(find.byType(LogView), findsOneWidget);
+      final initialLogView = tester.widget<LogView>(find.byType(LogView));
+      expect(initialLogView.expanded, false);
+
+      // ログビューをダブルタップ
+      final logViewFinder = find.byType(LogView);
+      await tester.tap(logViewFinder);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(logViewFinder);
+      await tester.pumpAndSettle();
+
+      // ログビューが展開されていることを確認
+      final expandedLogView = tester.widget<LogView>(find.byType(LogView));
+      expect(expandedLogView.expanded, true);
+
+      // 再度ダブルタップ
+      await tester.tap(logViewFinder);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(logViewFinder);
+      await tester.pumpAndSettle();
+
+      // ログビューが折りたたまれていることを確認
+      final collapsedLogView = tester.widget<LogView>(find.byType(LogView));
+      expect(collapsedLogView.expanded, false);
     });
   });
 } 
