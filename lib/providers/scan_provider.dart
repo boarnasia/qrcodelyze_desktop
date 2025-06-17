@@ -1,35 +1,40 @@
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/image_source.dart';
 
-class ScanProvider extends ChangeNotifier {
-  ImageSource? _currentSource;
-  Uint8List? _previewData;
+class ScanProvider with ChangeNotifier {
+  bool _isScanning = false;
+  String? _lastScannedData;
   String? _errorMessage;
   String? _codeType;
   String? _codeContent;
+  Uint8List? _previewData;
+  ImageSource? _imageSource;
 
-  ImageSource? get currentSource => _currentSource;
-  Uint8List? get previewData => _previewData;
+  bool get isScanning => _isScanning;
+  String? get lastScannedData => _lastScannedData;
   String? get errorMessage => _errorMessage;
   String? get codeType => _codeType;
   String? get codeContent => _codeContent;
+  Uint8List? get previewData => _previewData;
+  ImageSource? get imageSource => _imageSource;
 
-  void setImageSource(ImageSource source) {
-    _currentSource = source;
-    _resetState();
+  void startScanning() {
+    _isScanning = true;
     notifyListeners();
   }
 
-  void _resetState() {
-    _previewData = null;
-    _errorMessage = null;
-    _codeType = null;
-    _codeContent = null;
+  void stopScanning() {
+    _isScanning = false;
+    notifyListeners();
   }
 
-  void setPreviewData(Uint8List data) {
-    _previewData = data;
+  void setLastScannedData(String data) {
+    _lastScannedData = data;
+    notifyListeners();
+  }
+
+  void clearLastScannedData() {
+    _lastScannedData = null;
     notifyListeners();
   }
 
@@ -38,9 +43,24 @@ class ScanProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   void setCodeResult({String? type, String? content}) {
     _codeType = type;
     _codeContent = content;
+    notifyListeners();
+  }
+
+  void setPreviewData(Uint8List? data) {
+    _previewData = data;
+    notifyListeners();
+  }
+
+  void setImageSource(ImageSource source) {
+    _imageSource = source;
     notifyListeners();
   }
 } 

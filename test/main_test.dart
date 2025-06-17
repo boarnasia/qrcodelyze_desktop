@@ -4,16 +4,18 @@ import 'package:qrcodelyze_desktop/main.dart';
 import 'package:qrcodelyze_desktop/screens/generate_screen.dart';
 import 'package:qrcodelyze_desktop/screens/scan_screen.dart';
 import 'package:qrcodelyze_desktop/screens/log_view.dart';
-import 'package:provider/provider.dart';
-import 'package:qrcodelyze_desktop/models/qr_data_provider.dart';
+import 'helpers/test_setup.dart';
 
 void main() {
+  setUpAll(() {
+    TestSetup.setupAll();
+  });
+
   group('MyHomePage Tests', () {
     testWidgets('初期状態のテスト', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider(
-          create: (_) => QrDataProvider(),
-          child: const MaterialApp(home: MyHomePage(title: 'QR Codelyze')),
+        TestSetup.wrapWithProviders(
+          const MyHomePage(title: 'QR Codelyze'),
         ),
       );
 
@@ -43,9 +45,8 @@ void main() {
 
     testWidgets('画面切り替えのテスト', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider(
-          create: (_) => QrDataProvider(),
-          child: const MaterialApp(home: MyHomePage(title: 'QR Codelyze')),
+        TestSetup.wrapWithProviders(
+          const MyHomePage(title: 'QR Codelyze'),
         ),
       );
 
@@ -94,9 +95,8 @@ void main() {
 
     testWidgets('ログビューの展開/折りたたみテスト', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider(
-          create: (_) => QrDataProvider(),
-          child: const MaterialApp(home: MyHomePage(title: 'QR Codelyze')),
+        TestSetup.wrapWithProviders(
+          const MyHomePage(title: 'QR Codelyze'),
         ),
       );
 

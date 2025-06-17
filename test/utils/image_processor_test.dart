@@ -1,28 +1,13 @@
-import 'dart:io';
-import 'dart:ffi';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:file_selector/file_selector.dart';
-import 'package:path/path.dart' as path;
 import 'package:qrcodelyze_desktop/models/file_image_source.dart';
 import 'package:qrcodelyze_desktop/utils/image_processor.dart';
+import '../helpers/test_setup.dart';
 
 void main() {
   setUpAll(() {
-    // DLLのパスを設定
-    final dllPath = path.join(
-      Directory.current.path,
-      'test',
-      'fixtures',
-      'windows',
-      'runner',
-      'resources',
-      'flutter_zxing.dll',
-    );
-    if (Platform.isWindows) {
-      // DLLを直接読み込む
-      DynamicLibrary.open(dllPath);
-    }
+    TestSetup.setupAll();
   });
 
   group('ImageProcessor', () {

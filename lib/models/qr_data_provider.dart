@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
-import 'dart:typed_data';
 import 'package:image/image.dart' as imglib;
 import 'dart:async';
 import '../constants/app_constants.dart';

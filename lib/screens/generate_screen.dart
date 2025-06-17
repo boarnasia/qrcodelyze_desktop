@@ -29,6 +29,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
         children: [
           Expanded(
             child: Container(
+              key: Key('qr_code_image_container'),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8),
@@ -45,16 +46,21 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         },
                         child: Image.memory(
                           qrCodeImage,
+                          key: Key('qr_code_image'),
                         ),
                       );
                     }
-                    return const Text('QRコードの生成に失敗しました');
+                    return const Text(
+                      'QRコードの生成に失敗しました',
+                      key: Key('qr_code_image_error'),
+                    );
                   },
                 ),
               ),
             ),
           ),
           Expanded(
+            key: Key('qr_code_text_container'),
             child: Consumer<QrDataProvider>(
               builder: (context, provider, _) {
                 return Stack(
@@ -64,9 +70,9 @@ class _GenerateScreenState extends State<GenerateScreen> {
                       onKeyEvent: (event) {
                         if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.escape) {
                           setState(() {
-                            logInfo("テキストをクリアしました。");
                             Provider.of<QrDataProvider>(context, listen: false).clearQrData();
                             provider.textController.clear();
+                            logInfo("テキストをクリアしました。");
                           });
                         }
                       },
@@ -77,14 +83,17 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         textAlignVertical: TextAlignVertical.top,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
-                          hintText: 'Enter text',
+                          hintText: '内容を入力してください',
                         ),
+                        key: Key('qr_code_text_content'),
                       ),
                     ),
                     Positioned(
+                      key: Key('qr_code_text_hint_text_clear'),
                       right: 12,
                       bottom: 12,
                       child: Text(
+                        key: Key('qr_code_text_hint_text_clear_label'),
                         'ESC でクリア',
                         style: TextStyle(
                           color: Colors.grey.shade400,
