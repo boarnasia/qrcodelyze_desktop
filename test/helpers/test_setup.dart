@@ -4,8 +4,6 @@ import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qrcodelyze_desktop/models/qr_data_provider.dart';
-import 'package:qrcodelyze_desktop/models/scan_history_provider.dart';
-import 'package:qrcodelyze_desktop/models/settings_provider.dart';
 import 'package:qrcodelyze_desktop/providers/scan_provider.dart';
 
 /// テストの共通セットアップを提供するクラス
@@ -40,8 +38,6 @@ class TestSetup {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => QrDataProvider()),
-        ChangeNotifierProvider(create: (_) => ScanHistoryProvider()),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => ScanProvider()),
       ],
       child: MaterialApp(
