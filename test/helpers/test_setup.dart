@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qrcodelyze_desktop/models/qr_data_provider.dart';
 import 'package:qrcodelyze_desktop/providers/scan_provider.dart';
+import 'package:qrcodelyze_desktop/providers/barcode_provider.dart';
 
 /// テストの共通セットアップを提供するクラス
 class TestSetup {
@@ -39,6 +40,7 @@ class TestSetup {
       providers: [
         ChangeNotifierProvider(create: (_) => QrDataProvider()),
         ChangeNotifierProvider(create: (_) => ScanProvider()),
+        ChangeNotifierProvider(create: (_) => BarcodeProvider()),
       ],
       child: MaterialApp(
         home: Scaffold(

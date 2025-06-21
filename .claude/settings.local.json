@@ -5,7 +5,12 @@
       "Bash(find:*)",
       "Bash(rm:*)",
       "Bash(cmd.exe:*)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(grep:*)",
+      "Bash(awk:*)",
+      "Bash(cat:*)",
+      "Bash(python3:*)"
     ],
     "deny": []
   }
