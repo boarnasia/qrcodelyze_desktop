@@ -50,12 +50,14 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _handleImageSource(ImageSource source) async {
     final provider = context.read<ScanProvider>();
     provider.setImageSource(source);
+    provider.clearError(); // エラーをクリア
 
     try {
       final previewData = await source.getPreviewData();
       provider.setPreviewData(previewData);
 
       final result = await ImageProcessor.decodeImageSource(source);
+      
       if (result.isValid && result.text != null) {
         await Clipboard.setData(ClipboardData(text: result.text!));
         provider.setCodeResult(
@@ -65,11 +67,12 @@ class _ScanScreenState extends State<ScanScreen> {
         logInfo('コードを検出: ${result.format?.name}, クリップボードへコピーしました');
       } else {
         provider.setCodeResult(type: null, content: null);
-        provider.setError('コードが検出できませんでした');
+        provider.setError('コードが検出できませんでした - 画像にバーコード/QRコードが含まれていない可能性があります');
         logWarning('コードが検出できませんでした');
       }
     } catch (e) {
-      provider.setError(e.toString());
+      provider.setCodeResult(type: null, content: null);
+      provider.setError('エラー: ${e.toString()}');
       logWarning('画像処理エラー: $e');
     }
   }

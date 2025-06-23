@@ -48,8 +48,8 @@ void main() {
       await tester.enterText(find.byType(TextField), testText);
       await tester.pump(const Duration(milliseconds: 600)); // validation delay
 
-      // 文字数カウンターが更新されていることを確認
-      expect(find.textContaining('Current: 13'), findsOneWidget);
+      // 文字数カウンターが更新されていることを確認（新しい形式）
+      expect(find.textContaining('文字数: 13'), findsOneWidget);
     });
 
     testWidgets('ESCキーでのクリアテスト', (WidgetTester tester) async {
@@ -88,8 +88,7 @@ void main() {
 
       // フォーマット情報が表示されていることを確認
       expect(find.textContaining('Numbers only'), findsOneWidget); // UPC-A default
-      expect(find.textContaining('Max:'), findsOneWidget);
-      expect(find.textContaining('Current:'), findsOneWidget);
+      expect(find.textContaining('文字数:'), findsOneWidget);
     });
 
     // TODO: Fix validation error display test - need to debug why errors aren't showing

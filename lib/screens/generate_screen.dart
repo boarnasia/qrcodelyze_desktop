@@ -38,36 +38,58 @@ class _GenerateScreenState extends State<GenerateScreen> {
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Center(
-                child: Consumer<BarcodeProvider>(
-                  builder: (context, provider, _) {
-                    final barcodeImage = provider.barcodeImage;
-                    if (barcodeImage != null) {
-                      return GestureDetector(
-                        onSecondaryTap: () async {
-                          await Pasteboard.writeImage(barcodeImage);
-                          logInfo('バーコード画像をクリップボードにコピーしました');
-                        },
-                        child: Image.memory(
-                          barcodeImage,
-                          key: const Key('barcode_image'),
-                          fit: BoxFit.contain,
-                        ),
-                      );
-                    }
-                    return Text(
-                      provider.inputText.isEmpty 
-                        ? 'バーコードを生成するにはテキストを入力してください'
-                        : 'バーコードの生成に失敗しました',
-                      key: const Key('barcode_image_placeholder'),
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 16,
+              child: Consumer<BarcodeProvider>(
+                builder: (context, provider, _) {
+                  final barcodeImage = provider.barcodeImage;
+                  return Stack(
+                    children: [
+                      Center(
+                        child: barcodeImage != null
+                          ? GestureDetector(
+                              onSecondaryTap: () async {
+                                await Pasteboard.writeImage(barcodeImage);
+                                logInfo('バーコード画像をクリップボードにコピーしました');
+                              },
+                              child: Image.memory(
+                                barcodeImage,
+                                key: const Key('barcode_image'),
+                                fit: BoxFit.contain,
+                              ),
+                            )
+                          : Text(
+                              provider.inputText.isEmpty 
+                                ? 'バーコードを生成するにはテキストを入力してください'
+                                : 'バーコードの生成に失敗しました',
+                              key: const Key('barcode_image_placeholder'),
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                       ),
-                      textAlign: TextAlign.center,
-                    );
-                  },
-                ),
+                      if (barcodeImage != null)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              '右クリックでコピー',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -121,13 +143,9 @@ class _GenerateScreenState extends State<GenerateScreen> {
                           style: const TextStyle(fontSize: 12, color: Colors.blue),
                           textAlign: TextAlign.right,
                         ),
+                        const SizedBox(height: 4),
                         Text(
-                          'Max: ${provider.currentFormat.capacityInfo}',
-                          style: const TextStyle(fontSize: 12, color: Colors.green),
-                          textAlign: TextAlign.right,
-                        ),
-                        Text(
-                          'Current: ${provider.validationResult.characterCount}',
+                          '文字数: ${provider.validationResult.characterCount} / ${provider.currentFormat.capacityInfo}',
                           style: TextStyle(
                             fontSize: 12, 
                             color: provider.validationResult.hasErrors 

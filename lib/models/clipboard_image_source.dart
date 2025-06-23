@@ -18,19 +18,19 @@ class ClipboardImageSource implements ImageSource {
     if (data == null) {
       throw Exception('クリップボードに画像がありません');
     }
-
     return data;
   }
 
   @override
   Future<Uint8List> getPreviewData() async {
     final data = await getImageData();
+    
     final image = img.decodeImage(data);
     if (image == null) {
-      throw Exception('画像のデコードに失敗しました');
+      throw Exception('画像のデコードに失敗しました - 画像形式が正しくありません');
     }
+    
     _rawImage = image;
-
     return Uint8List.fromList(img.encodeJpg(image, quality: 85));
   }
 }

@@ -13,10 +13,11 @@ Uint8List convertToRGBX(img.Image decoded) {
   for (var y = 0; y < height; y++) {
     for (var x = 0; x < width; x++) {
       final pixel = decoded.getPixel(x, y);
-      rgbxBytes[offset++] = pixel.r.toInt();
-      rgbxBytes[offset++] = pixel.g.toInt();
-      rgbxBytes[offset++] = pixel.b.toInt();
-      rgbxBytes[offset++] = 255;
+      // RGBAの値を正しく設定
+      rgbxBytes[offset++] = pixel.r.toInt() & 0xFF;
+      rgbxBytes[offset++] = pixel.g.toInt() & 0xFF;
+      rgbxBytes[offset++] = pixel.b.toInt() & 0xFF;
+      rgbxBytes[offset++] = pixel.a.toInt() & 0xFF; // アルファチャンネルも正しく設定
     }
   }
 
@@ -26,17 +27,42 @@ Uint8List convertToRGBX(img.Image decoded) {
 class ImageProcessor {
   /// 画像ソースからQRコードをデコードする
   static Future<Code> decodeImageSource(ImageSource source) async {
-    final rawImage = source.rawImage!;
-    final imageData = convertToRGBX(rawImage);
-    final params = DecodeParams(
-      imageFormat: ImageFormat.rgbx,
-      format: Format.any,
-      width: rawImage.width,
-      height: rawImage.height,
-    );
+    try {
+      final rawImage = source.rawImage;
+      if (rawImage == null) {
+        return Code(isValid: false);
+      }
+      
+      // RGBX形式で試行
+      final imageData = convertToRGBX(rawImage);
+      
+      final params = DecodeParams(
+        imageFormat: ImageFormat.rgbx,
+        format: Format.any,
+        width: rawImage.width,
+        height: rawImage.height,
+      );
 
-    final result = zx.readBarcode(imageData, params);
+      var result = zx.readBarcode(imageData, params);
 
-    return result;
+      // RGBX形式で失敗した場合、グレースケール変換を試行
+      if (!result.isValid) {
+        final grayImage = img.grayscale(rawImage);
+        final grayData = convertToRGBX(grayImage);
+        
+        final grayParams = DecodeParams(
+          imageFormat: ImageFormat.rgbx,
+          format: Format.any,
+          width: grayImage.width,
+          height: grayImage.height,
+        );
+        
+        result = zx.readBarcode(grayData, grayParams);
+      }
+
+      return result;
+    } catch (e) {
+      return Code(isValid: false);
+    }
   }
 } 
