@@ -305,13 +305,15 @@ void main() {
       });
 
       test('Using provider after dispose should handle gracefully', () {
-        provider.dispose();
+        // Create a separate provider for this test to avoid interfering with tearDown
+        final testProvider = BarcodeProvider();
+        testProvider.dispose();
         
         // These operations should either work or fail gracefully
         // (depending on implementation)
-        expect(() => provider.inputText, returnsNormally);
-        expect(() => provider.currentFormat, returnsNormally);
-        expect(() => provider.validationResult, returnsNormally);
+        expect(() => testProvider.inputText, returnsNormally);
+        expect(() => testProvider.currentFormat, returnsNormally);
+        expect(() => testProvider.validationResult, returnsNormally);
       });
     });
   });
