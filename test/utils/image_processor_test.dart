@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image/image.dart' as img;
 import 'package:file_selector/file_selector.dart';
 import 'package:qrcodelyze_desktop/models/file_image_source.dart';
 import 'package:qrcodelyze_desktop/utils/image_processor.dart';
