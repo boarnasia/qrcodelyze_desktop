@@ -231,6 +231,14 @@ class BarcodeFormats {
     return allFormats.where((f) => f.category == category).toList();
   }
 
+  static BarcodeFormatData getFormatByName(String name) {
+    try {
+      return allFormats.firstWhere((f) => f.name == name);
+    } catch (e) {
+      return allFormats.firstWhere((f) => f.name == 'QR Code');
+    }
+  }
+
   static List<String> get categories {
     return allFormats.map((f) => f.category).toSet().toList();
   }

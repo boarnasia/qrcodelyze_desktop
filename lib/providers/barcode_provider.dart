@@ -9,7 +9,7 @@ import '../utils/checksum_calculator.dart';
 class BarcodeProvider extends ChangeNotifier {
   static const Duration _validationDelay = Duration(milliseconds: 500);
 
-  BarcodeFormatData _currentFormat = BarcodeFormats.allFormats.first;
+  BarcodeFormatData _currentFormat = BarcodeFormats.getFormatByName('QR Code');
   final TextEditingController _textController = TextEditingController();
   BarcodeValidationResult _validationResult = const BarcodeValidationResult(
     isValid: true,
