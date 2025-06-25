@@ -14,6 +14,7 @@ enum CharacterType {
 class BarcodeFormatData {
   final int format;
   final String name;
+  final String code;
   final String category;
   final CharacterType characterType;
   final int? fixedLength;
@@ -25,6 +26,7 @@ class BarcodeFormatData {
   const BarcodeFormatData({
     required this.format,
     required this.name,
+    required this.code,
     required this.category,
     required this.characterType,
     this.fixedLength,
@@ -67,6 +69,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 16384, // Format.upca
       name: 'UPC-A',
+      code: 'UPCA',
       category: '1D Barcodes',
       characterType: CharacterType.numeric,
       fixedLength: 12,
@@ -76,6 +79,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 32768, // Format.upce
       name: 'UPC-E',
+      code: 'UPCE',
       category: '1D Barcodes',
       characterType: CharacterType.numeric,
       fixedLength: 8,
@@ -85,6 +89,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 512, // Format.ean13
       name: 'EAN-13',
+      code: 'EAN13',
       category: '1D Barcodes',
       characterType: CharacterType.numeric,
       fixedLength: 13,
@@ -94,6 +99,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 256, // Format.ean8
       name: 'EAN-8',
+      code: 'EAN8',
       category: '1D Barcodes',
       characterType: CharacterType.numeric,
       fixedLength: 8,
@@ -105,6 +111,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 4, // Format.code39
       name: 'Code 39',
+      code: 'Code39',
       category: '1D Barcodes',
       characterType: CharacterType.alphanumeric,
       maxLength: 43,
@@ -114,6 +121,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 8, // Format.code93
       name: 'Code 93',
+      code: 'Code93',
       category: '1D Barcodes',
       characterType: CharacterType.ascii,
       maxLength: 47,
@@ -123,6 +131,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 16, // Format.code128
       name: 'Code 128',
+      code: 'Code128',
       category: '1D Barcodes',
       characterType: CharacterType.ascii,
       maxLength: 2046,
@@ -132,6 +141,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 2, // Format.codabar
       name: 'Codabar',
+      code: 'CodaBar',
       category: '1D Barcodes',
       characterType: CharacterType.numeric,
       maxLength: 20,
@@ -143,6 +153,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 1024, // Format.itf
       name: 'ITF (Interleaved 2 of 5)',
+      code: 'ITF',
       category: '1D Barcodes',
       characterType: CharacterType.numeric,
       maxLength: 30,
@@ -154,6 +165,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 8192, // Format.qrCode
       name: 'QR Code',
+      code: 'QR Code',
       category: '2D Barcodes',
       characterType: CharacterType.extended,
       maxLength: 7089,
@@ -163,6 +175,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 128, // Format.dataMatrix
       name: 'Data Matrix',
+      code: 'DataMatrix',
       category: '2D Barcodes',
       characterType: CharacterType.binary,
       maxLength: 3116,
@@ -172,6 +185,7 @@ class BarcodeFormats {
     BarcodeFormatData(
       format: 1, // Format.aztec
       name: 'Aztec',
+      code: 'Aztec',
       category: '2D Barcodes',
       characterType: CharacterType.binary,
       maxLength: 3832,
@@ -236,6 +250,20 @@ class BarcodeFormats {
       return allFormats.firstWhere((f) => f.name == name);
     } catch (e) {
       return allFormats.firstWhere((f) => f.name == 'QR Code');
+    }
+  }
+
+  static String _normalizeCode(String code) {
+    return code.toLowerCase().replaceAll(RegExp(r'[\s\-]'), '');
+  }
+
+  static BarcodeFormatData? findByCode(String libraryCode) {
+    final normalizedInput = _normalizeCode(libraryCode);
+    
+    try {
+      return allFormats.firstWhere((f) => _normalizeCode(f.code) == normalizedInput);
+    } catch (e) {
+      return null;
     }
   }
 

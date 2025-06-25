@@ -55,7 +55,7 @@ class ScanProvider with ChangeNotifier {
     _codeType = type;
     _codeContent = content;
     if (type != null) {
-      _currentFormat = BarcodeFormats.getFormatByName(type);
+      _currentFormat = BarcodeFormats.findByCode(type) ?? BarcodeFormats.getFormatByName(type);
     } else {
       _currentFormat = null;
     }

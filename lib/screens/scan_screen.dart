@@ -105,10 +105,16 @@ class _ScanScreenState extends State<ScanScreen> {
                           builder: (context, provider, _) {
                             return provider.previewData != null
                                 ? Image.memory(provider.previewData!)
-                                : const Text(
-                                    'ダブルクリック: ファイルから選択\n'
-                                    '右クリック: クリップボードから貼り付け\n'
+                                : Text(
+                                    'ダブルクリック: ファイルから選択\\n'
+                                    '右クリック: クリップボードから貼り付け\\n'
                                     'ドラッグ&ドロップ: ファイルをドロップ',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
+                                      height: 1.5,
+                                    ),
                                     key: Key('scan_instruction_text'),
                                   );
                           },
@@ -125,24 +131,36 @@ class _ScanScreenState extends State<ScanScreen> {
 
           Consumer<ScanProvider>(
             builder: (context, provider, _) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded( // コード種別表示
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        SizedBox(width: 8),
-                        Icon(Icons.qr_code),
-                        SizedBox(width: 4),
-                        Text(
-                          provider.currentFormat?.name ?? '未検出',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              return Container(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Icon(Icons.qr_code, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      provider.currentFormat?.name ?? '未検出',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    Spacer(),
+                    if (provider.codeContent != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.blue.shade200),
                         ),
-                      ],
-                    )
-                  ),
-                ],
+                        child: Text(
+                          'Count: ${provider.codeContent!.length} / ${provider.currentFormat?.capacityInfo ?? 'N/A'}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               );
             },
           ),
@@ -159,30 +177,60 @@ class _ScanScreenState extends State<ScanScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (provider.errorMessage != null)
-                        Text(
-                          provider.errorMessage!,
-                          style: const TextStyle(color: Colors.red),
-                        )
-                      else if (provider.codeType != null || provider.codeContent != null) ...[
-                        if (provider.codeType != null)
-                          Text(
-                            'コード種別: ${provider.codeType}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.red.shade200),
                           ),
-                        const SizedBox(height: 8),
-                        if (provider.codeContent != null)
+                          child: Row(
+                            children: [
+                              Icon(Icons.error_outline, color: Colors.red.shade600, size: 20),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  provider.errorMessage!,
+                                  style: TextStyle(color: Colors.red.shade700, fontSize: 14),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (provider.codeContent != null) ...
+                        [
                           Expanded(
-                            child: SingleChildScrollView(
-                              child: Text(
-                                provider.codeContent!,
-                                style: const TextStyle(fontSize: 15),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: SingleChildScrollView(
+                                child: SelectableText(
+                                  provider.codeContent!,
+                                  style: const TextStyle(fontSize: 14, height: 1.5),
+                                ),
                               ),
                             ),
                           ),
-                      ] else
-                        const Text(
-                          '画像を読み込むとコード情報が表示されます',
-                          key: Key('scan_result_help_text'),
+                        ]
+                      else
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.grey.shade600, size: 48),
+                              SizedBox(height: 12),
+                              Text(
+                                '画像を読み込むとコード情報が表示されます',
+                                key: Key('scan_result_help_text'),
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
                     ],
                   );
