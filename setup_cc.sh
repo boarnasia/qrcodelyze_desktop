@@ -17,13 +17,13 @@ echo "プロジェクトディレクトリ: $(pwd)"
 # === 重要：プロジェクトコンテキストの自動読み込み ===
 echo ""
 echo "=== プロジェクトコンテキスト読み込み中... ==="
-if [ -f ".claude-context.md" ]; then
-    echo "📋 .claude-context.md を読み込みます..."
-    cat .claude-context.md
+if [ -f "CLAUDE.md" ]; then
+    echo "📋 CLAUDE.md を読み込みます..."
+    cat CLAUDE.md
     echo ""
     echo "✅ プロジェクトコンテキストを理解しました"
 else
-    echo "⚠️  .claude-context.md が見つかりません"
+    echo "⚠️  .CLAUDE.md が見つかりません"
 fi
 
 echo ""
