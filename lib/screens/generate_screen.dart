@@ -215,7 +215,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         right: 8,
                         child: HelpBalloon(
                           key: const Key('barcode_text_hint_clear'),
-                          text: 'ESC でクリア',
+                          text: 'ESCでクリア',
                         ),
                       ),
                   ],

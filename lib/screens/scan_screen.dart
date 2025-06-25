@@ -10,6 +10,7 @@ import '../models/file_image_source.dart';
 import '../models/image_source.dart';
 import '../providers/scan_provider.dart';
 import '../utils/image_processor.dart';
+import '../widgets/common/help_balloon.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -41,6 +42,12 @@ Uint8List convertToRGBX(img.Image decoded) {
 class _ScanScreenState extends State<ScanScreen> {
   final _focusNode = FocusNode();
 
+  final _scanInstructionText =
+    'ダブルクリックで画像をファイルから選択、\n'
+    'もしくはドラッグ&ドロップ\n'
+    '右クリックでクリップボードから貼り付け'
+    ;
+
   @override
   void dispose() {
     _focusNode.dispose();
@@ -59,12 +66,13 @@ class _ScanScreenState extends State<ScanScreen> {
       final result = await ImageProcessor.decodeImageSource(source);
       
       if (result.isValid && result.text != null) {
-        await Clipboard.setData(ClipboardData(text: result.text!));
+        //await Clipboard.setData(ClipboardData(text: result.text!));
         provider.setCodeResult(
           type: result.format?.name,
           content: result.text,
         );
-        logInfo('コードを検出: ${result.format?.name}, クリップボードへコピーしました');
+        //logInfo('コードを検出: ${result.format?.name}, クリップボードへコピーしました');
+        logInfo('コードを検出: ${result.format?.name}');
       } else {
         provider.setCodeResult(type: null, content: null);
         provider.setError('コードが検出できませんでした - 画像にバーコード/QRコードが含まれていない可能性があります');
@@ -98,30 +106,38 @@ class _ScanScreenState extends State<ScanScreen> {
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Consumer<ScanProvider>(
-                          builder: (context, provider, _) {
-                            return provider.previewData != null
-                                ? Image.memory(provider.previewData!)
-                                : Text(
-                                    'ダブルクリック: ファイルから選択\\n'
-                                    '右クリック: クリップボードから貼り付け\\n'
-                                    'ドラッグ&ドロップ: ファイルをドロップ',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 14,
-                                      height: 1.5,
-                                    ),
-                                    key: Key('scan_instruction_text'),
-                                  );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: 
+                    Consumer<ScanProvider>(
+                      builder: (context, provider, _) {
+                        return Stack(
+                          children: [
+                            Center(
+                              child: 
+                                provider.previewData != null
+                                  ?   Image.memory(provider.previewData!)
+                                  : Text(
+                                      _scanInstructionText,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                        height: 1.5,
+                                      ),
+                                      key: Key('scan_instruction_text'),
+                                    )
+                            ),
+                            if (provider.previewData != null)
+                              Positioned(
+                                bottom: 8,
+                                right: 8,
+                                child: HelpBalloon(
+                                  key: Key('scan_help_balloon'),
+                                  text: "$_scanInstructionText\nESCでクリア",
+                                ),
+                              ),
+                          ],
+                        );
+                    }),
                 ),
               ),
             ),
