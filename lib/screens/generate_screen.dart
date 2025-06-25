@@ -200,9 +200,6 @@ class _GenerateScreenState extends State<GenerateScreen> {
                             ),
                           ),
                           hintText: '${provider.currentFormat.name}用のテキストを入力してください',
-                          errorText: provider.validationResult.hasErrors 
-                            ? provider.validationResult.errors.first.message
-                            : null,
                         ),
                         key: const Key('barcode_text_content'),
                         style: TextStyle(
@@ -211,18 +208,16 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         ),
                       ),
                     ),
-                    Positioned(
-                      key: const Key('barcode_text_hint_clear'),
-                      right: 12,
-                      bottom: provider.validationResult.hasErrors ? 32 : 12,
-                      child: Text(
-                        'ESC でクリア',
-                        style: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 12,
+                    if (provider.inputText.isNotEmpty)
+                      Positioned(
+                        key: const Key('barcode_text_hint_clear_container'),
+                        bottom: 8,
+                        right: 8,
+                        child: HelpBalloon(
+                          key: const Key('barcode_text_hint_clear'),
+                          text: 'ESC でクリア',
                         ),
                       ),
-                    ),
                   ],
                 );
               },
