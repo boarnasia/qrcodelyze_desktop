@@ -243,7 +243,7 @@ class BarcodeFormats {
     return allFormats.map((f) => f.category).toSet().toList();
   }
 
-  static BarcodeFormatData get defaultFormat => allFormats.first;
+  static BarcodeFormatData get defaultFormat => getFormatByName('QR Code');
 }
 
 class BarcodeValidationResult {

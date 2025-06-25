@@ -80,7 +80,7 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(4.0),
       child: Column(
         children: [
           Expanded(
@@ -120,6 +120,35 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
           ),
+
+          const SizedBox(height: 4),
+
+          Consumer<ScanProvider>(
+            builder: (context, provider, _) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded( // コード種別表示
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        SizedBox(width: 8),
+                        Icon(Icons.qr_code),
+                        SizedBox(width: 4),
+                        Text(
+                          provider.currentFormat?.name ?? '未検出',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ],
+                    )
+                  ),
+                ],
+              );
+            },
+          ),
+
+          const SizedBox(height: 4),
+
           Expanded(
             child: Container(
               alignment: Alignment.topLeft,

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/image_source.dart';
+import '../models/barcode_format.dart';
 
 class ScanProvider with ChangeNotifier {
   bool _isScanning = false;
@@ -9,6 +10,7 @@ class ScanProvider with ChangeNotifier {
   String? _codeContent;
   Uint8List? _previewData;
   ImageSource? _imageSource;
+  BarcodeFormatData? _currentFormat;
 
   bool get isScanning => _isScanning;
   String? get lastScannedData => _lastScannedData;
@@ -17,6 +19,7 @@ class ScanProvider with ChangeNotifier {
   String? get codeContent => _codeContent;
   Uint8List? get previewData => _previewData;
   ImageSource? get imageSource => _imageSource;
+  BarcodeFormatData? get currentFormat => _currentFormat;
 
   void startScanning() {
     _isScanning = true;
@@ -51,6 +54,11 @@ class ScanProvider with ChangeNotifier {
   void setCodeResult({String? type, String? content}) {
     _codeType = type;
     _codeContent = content;
+    if (type != null) {
+      _currentFormat = BarcodeFormats.getFormatByName(type);
+    } else {
+      _currentFormat = null;
+    }
     notifyListeners();
   }
 
@@ -63,4 +71,4 @@ class ScanProvider with ChangeNotifier {
     _imageSource = source;
     notifyListeners();
   }
-} 
+}
