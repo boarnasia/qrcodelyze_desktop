@@ -142,11 +142,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ],
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           if (_logExpanded)
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: LogView(
                   expanded: true,
                   onExpandChanged: (expanded) {
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           else
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: LogView(
                 expanded: false,
                 onExpandChanged: (expanded) {
