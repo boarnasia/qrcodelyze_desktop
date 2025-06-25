@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/barcode_provider.dart';
-// Removed unused import: '../models/barcode_format.dart';
 import '../screens/format_selection_screen.dart';
 import '../log/log_wrapper.dart';
 import 'package:pasteboard/pasteboard.dart';
+import '../widgets/common/help_balloon.dart';
 
 class GenerateScreen extends StatefulWidget {
   const GenerateScreen({super.key});
@@ -26,12 +26,12 @@ class _GenerateScreenState extends State<GenerateScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(4.0),
       child: Column(
         children: [
           // Top Section: Barcode display area
           Expanded(
-            flex: 3,
+            flex: 1,
             child: Container(
               key: const Key('barcode_image_container'),
               decoration: BoxDecoration(
@@ -69,22 +69,13 @@ class _GenerateScreenState extends State<GenerateScreen> {
                             ),
                       ),
                       if (barcodeImage != null)
-                        Positioned(
-                          top: 8,
+                        const Positioned(
+                          key: Key('barcode_image_help_balloon_container'),
+                          bottom: 8,
                           right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.7),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              '右クリックでコピー',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
+                          child: HelpBalloon(
+                            key: Key('barcode_image_help_balloon'),
+                            text: '右クリックでコピー',
                           ),
                         ),
                     ],
@@ -94,7 +85,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
             ),
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
           
           // Middle Section: Format selector and info
           Consumer<BarcodeProvider>(
@@ -103,7 +94,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
                 children: [
                   // Format selector button
                   Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
@@ -130,11 +121,9 @@ class _GenerateScreenState extends State<GenerateScreen> {
                     ),
                   ),
                   
-                  const SizedBox(width: 16),
-                  
                   // Format info
                   Expanded(
-                    flex: 3,
+                    flex: 2,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -145,15 +134,15 @@ class _GenerateScreenState extends State<GenerateScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '文字数: ${provider.validationResult.characterCount} / ${provider.currentFormat.capacityInfo}',
+                          'Count: ${provider.validationResult.characterCount} / ${provider.currentFormat.capacityInfo}',
                           style: TextStyle(
                             fontSize: 12, 
                             color: provider.validationResult.hasErrors 
                               ? Colors.red 
-                              : Colors.grey.shade700,
+                              : Colors.green,
                             fontWeight: provider.validationResult.hasErrors 
-                              ? FontWeight.bold 
-                              : FontWeight.normal,
+                              ? FontWeight.normal 
+                              : FontWeight.bold,
                           ),
                           textAlign: TextAlign.right,
                         ),
@@ -164,12 +153,12 @@ class _GenerateScreenState extends State<GenerateScreen> {
               );
             },
           ),
-          
-          const SizedBox(height: 16),
+
+          const SizedBox(height: 4),
           
           // Content Input Section
           Expanded(
-            flex: 2,
+            flex: 1,
             key: const Key('barcode_text_container'),
             child: Consumer<BarcodeProvider>(
               builder: (context, provider, _) {
