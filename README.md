@@ -1,16 +1,38 @@
-# qrcodelyze_desktop
+クィックスタート
+=============
 
-A new Flutter project.
+## 開発環境のセットアップ
 
-## Getting Started
+### リポジトリのクローン
+```bash
+git clone git@github.com:boarnasia/qrcodelyze_desktop.git
+cd qrcodelyze_desktop
+```
 
-This project is a starting point for a Flutter application.
+### サブモジュールの取得
+```bash
+git submodule update --init --recursive
+```
 
-A few resources to get you started if this is your first Flutter project:
+### 依存関係のインストール
+```bash
+flutter pub get
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 開発作業
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### テストの実行
+```bash
+flutter test
+```
+
+### コード分析
+```bash
+flutter analyze
+```
+
+### アプリケーションの実行
+```bash
+flutter run -d windows
+```
+
